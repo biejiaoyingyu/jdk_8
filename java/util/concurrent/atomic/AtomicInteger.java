@@ -65,6 +65,16 @@ public class AtomicInteger extends Number implements java.io.Serializable {
         } catch (Exception ex) { throw new Error(ex); }
     }
 
+    /**
+     * 由内部的一个int域来保存值：
+     *
+     * volatile怎么保证可见性呢？对于被volatile修饰的域来说，对域进行的写入操作，在指令层面会
+     * 在必要的时候(多核CPU)加入内存屏障(如:lock addl $0x0)，这个内存屏障的作用是令本次写操作
+     * 刷回主存，同时使其他CPU的cacheline中相应数据失效。所以当其他CPU需要访问相应数据的时候，
+     * 会到主存中访问，从而保证了多线程环境下相应域的可见性。
+     *
+     *
+     */
     private volatile int value;
 
     /**
@@ -128,6 +138,31 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @param update the new value
      * @return {@code true} if successful. False return indicates that
      * the actual value was not equal to the expected value.
+     *
+     *  接下来看一下CAS操作，AtomicInteger中的CAS操作体现在方法compareAndSet。它的实现在unsafe.cpp里面：
+     *  UNSAFE_ENTRY(jboolean, Unsafe_CompareAndSwapInt(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jint e, jint x))
+     *  UnsafeWrapper("Unsafe_CompareAndSwapInt");
+     *  oop p = JNIHandles::resolve(obj);
+     *  jint* addr = (jint *) index_oop_from_field_offset_long(p, offset);
+     *  return (jint)(Atomic::cmpxchg(x, addr, e)) == e;
+     *  UNSAFE_END
+     *
+     *  --------------
+     *  这里调用了Atomic的cmpxchg方法，继续找一下。这个方法定义在hotspot/share/vm/runtime/atomic.hpp中，
+     *  实现在hotspot/share/vm/runtime/atomic.cpp中，最终实现取决于底层OS，
+     *  比如linux x86，实现内联在hotspot部分代码os_cpu/linux_x86/vm/atomic_linux_x86.inline.hpp：
+     *
+     *  inline jint Atomic::cmpxchg  (jint  exchange_value, volatile jint* dest, jint compare_value) {
+     *    *  int mp = os::is_MP();
+     *  __asm__ volatile (LOCK_IF_MP(%4) "cmpxchgl %1,(%3)": "=a" (exchange_value): "r" (exchange_value), "a" (compare_value), "r" (dest), "r" (mp)*  : "cc", "memory");
+     *  return exchange_value;
+     *  }
+     *
+     *  从上面的代码中可以看到，如果是CPU是多核(multi processors)的话，会添加一个lock;前缀，这个lock;
+     *  前缀也是内存屏障，它的作用是在执行后面指令的过程中锁总线(或者是锁cacheline)，保证一致性。后面的
+     *  指令cmpxchgl就是x86的比较并交换指令了。
+     *
+     *
      */
     public final boolean compareAndSet(int expect, int update) {
         return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
@@ -144,6 +179,11 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * @param expect the expected value
      * @param update the new value
      * @return {@code true} if successful
+     *
+     *  接下来有一个和compareAndSet类似的方法，weakCompareAndSet。
+     *  从注释看，这个方法会发生fail spuriously(伪失败)，而且不保证(指令)顺序，
+     *  只能在一些特性场景(一些计数和统计)下替换compareAndSet。但从方法实现上看和compareAndSet没什么区别：
+     *  但还是应该按照API的说明来使用这两个方法，以防未来方法内部发生变化
      */
     public final boolean weakCompareAndSet(int expect, int update) {
         return unsafe.compareAndSwapInt(this, valueOffset, expect, update);

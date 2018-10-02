@@ -34,6 +34,7 @@
  */
 
 package java.util.concurrent.atomic;
+
 import sun.misc.Unsafe;
 
 /**
@@ -50,6 +51,11 @@ import sun.misc.Unsafe;
 public class AtomicBoolean implements java.io.Serializable {
     private static final long serialVersionUID = 4654671469794556979L;
     // setup to use Unsafe.compareAndSwapInt for updates
+    /**
+     *
+     * 在openJdk代码中可以找到这个类，目录openJdk的jdk/share/classes/sun/misc/。
+     * 这个类里面大多数方法都是native的，方法实现可以在openJdk的hotspot/share/vm/prims/unsafe.cpp里面找到。
+     */
     private static final Unsafe unsafe = Unsafe.getUnsafe();
     private static final long valueOffset;
 
