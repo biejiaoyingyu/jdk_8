@@ -48,6 +48,12 @@ import sun.misc.Unsafe;
  * @since 1.5
  * @author Doug Lea
  * @param <E> The base class of elements held in this array
+ *
+ *
+ *   首先，AtomicReferenceArray里面多了一个arrayFieldOffset，这个域用来支持反序列化的。
+ *   其次，与AtomicIntegerArray不同，AtomicReferenceArray并没有scale域，取而
+ *   代之的是shift域。阅读代码可知，其实目的都是计算rawIndex = base + index * scale，
+ *   只不过AtomicReferenceArray里面把一部分运算转换为等价的位操作(当然前提是scala为2的幂)。
  */
 public class AtomicReferenceArray<E> implements java.io.Serializable {
     private static final long serialVersionUID = -6209656149925076980L;

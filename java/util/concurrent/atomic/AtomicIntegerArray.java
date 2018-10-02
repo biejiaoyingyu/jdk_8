@@ -45,6 +45,8 @@ import sun.misc.Unsafe;
  * variables.
  * @since 1.5
  * @author Doug Lea
+ *
+ *  相对于AtomicInteger来说，AtomicIntegerArray里面的方法都带有下标：
  */
 public class AtomicIntegerArray implements java.io.Serializable {
     private static final long serialVersionUID = 2862133569453604235L;
@@ -92,6 +94,7 @@ public class AtomicIntegerArray implements java.io.Serializable {
      * @throws NullPointerException if array is null
      */
     public AtomicIntegerArray(int[] array) {
+        //为什么是这样？
         // Visibility guaranteed by final field guarantees
         this.array = array.clone();
     }
@@ -110,6 +113,8 @@ public class AtomicIntegerArray implements java.io.Serializable {
      *
      * @param i the index
      * @return the current value
+     *
+     *   可见在x86_64下也相当于是对一个普通域的读取
      */
     public final int get(int i) {
         return getRaw(checkedByteOffset(i));
@@ -124,6 +129,8 @@ public class AtomicIntegerArray implements java.io.Serializable {
      *
      * @param i the index
      * @param newValue the new value
+     *
+     * 如果是多核CPU，就会加入lock addl... 这个指令。其实就相当于是对一个volatile修饰的域的写操作
      */
     public final void set(int i, int newValue) {
         unsafe.putIntVolatile(array, checkedByteOffset(i), newValue);

@@ -47,6 +47,8 @@ import sun.misc.Unsafe;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ *    AtomicBoolean内部是用一个int域来表示布尔状态，1表示true;0表示fasle
  */
 public class AtomicBoolean implements java.io.Serializable {
     private static final long serialVersionUID = 4654671469794556979L;

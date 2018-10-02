@@ -107,6 +107,9 @@ public class AtomicLongArray implements java.io.Serializable {
      *
      * @param i the index
      * @return the current value
+     *
+     *    可见，至少对这个long值得加载是原子的(这里的原子操作应该指的是将long的高4字节和
+     *    低4字节的操作合并成一个原子操作，比如某些平台不支持非volatile的long/double域的原子操作
      */
     public final long get(int i) {
         return getRaw(checkedByteOffset(i));
@@ -121,6 +124,8 @@ public class AtomicLongArray implements java.io.Serializable {
      *
      * @param i the index
      * @param newValue the new value
+     *
+     * 之前说过，这里加入了一个lock addl ... 的内存屏障。
      */
     public final void set(int i, long newValue) {
         unsafe.putLongVolatile(array, checkedByteOffset(i), newValue);

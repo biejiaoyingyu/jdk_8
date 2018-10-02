@@ -152,6 +152,25 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ *
+ * Semaphore是一种基于计数的信号量，管理了一组许可。线程可以申请许可，当信号量中有许可时，
+ * 线程申请成功，拿走一个许可；没有许可时，线程阻塞等待其他线程用完了许可，归还给信号量。这
+ * 个许可不是真正的许可(比如凭证)，只是一个计数，线程也不会真正使用这些许可。
+ *
+ * Semaphore一般用来构建一些对象池，资源池之类的，比如数据库连接池。
+ * 可以创建一个count为1的Semaphore作为一种类似互斥锁的机制，也叫二元信号量，表示两种互斥状
+ * 态。但和Lock有些区别，Lock只能又获取锁的线程来释放锁，而Semaphore允许其他线程来做释放动作。
+ * Semaphore也支持公平和非公平策略。
+ *
+ *
+ *    1.建立一个包含n个许可的信号量(内部的计数为n)，当一个线程从信号量中请求一个许可(调用acquire())，
+ *    如果信号量中有许可的话(n大于0)，那么线程成功获取许可，信号量内部许可数量减1(n减1)；如果信号量中
+ *    没有许可(n等于0)，那么当前线程阻塞。
+ *    2.当一个线程归还许可(调用release()，内部计数加1)，其他在acquire()方法处等待的线程便有可能被唤
+ *    醒来竞争许可。
+ *    3.公平模式下，如果有线程在acquire()处等待，新来的请求线程会排在这些等待线程后面；非公平模式下，
+ *    新来的请求线程可能会插队，比在acquire()处等待的线程提前申请到许可
  */
 public class Semaphore implements java.io.Serializable {
     private static final long serialVersionUID = -3222578661600680210L;
@@ -162,6 +181,9 @@ public class Semaphore implements java.io.Serializable {
      * Synchronization implementation for semaphore.  Uses AQS state
      * to represent permits. Subclassed into fair and nonfair
      * versions.
+     *
+     * semaphore内部的同步器实现，使用AQS的state表示许可。
+     * 子类分为公平版和非公平版。
      */
     abstract static class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 1192457210091910933L;
@@ -174,16 +196,20 @@ public class Semaphore implements java.io.Serializable {
             return getState();
         }
 
+        //共享模式下非公平的请求。
         final int nonfairTryAcquireShared(int acquires) {
             for (;;) {
+                //获取当前可用许可数量。
                 int available = getState();
+                //获取申请后剩余许可数量。
                 int remaining = available - acquires;
-                if (remaining < 0 ||
-                    compareAndSetState(available, remaining))
+                //如果确认有可申请的许可，那么通过CAS操作进行请求。
+                if (remaining < 0 || compareAndSetState(available, remaining))
                     return remaining;
             }
         }
 
+        //释放方法实现很简单，CAS直接释放。
         protected final boolean tryReleaseShared(int releases) {
             for (;;) {
                 int current = getState();
@@ -195,6 +221,7 @@ public class Semaphore implements java.io.Serializable {
             }
         }
 
+        //通过CAS减去一定数量的许可。
         final void reducePermits(int reductions) {
             for (;;) {
                 int current = getState();
@@ -205,7 +232,7 @@ public class Semaphore implements java.io.Serializable {
                     return;
             }
         }
-
+        //将许可数量置为0，并返回现有的许可数量。
         final int drainPermits() {
             for (;;) {
                 int current = getState();
@@ -242,6 +269,7 @@ public class Semaphore implements java.io.Serializable {
 
         protected int tryAcquireShared(int acquires) {
             for (;;) {
+                //公平版的请求，需要先检查同步队列里有没有比当前线程更早的线程在等待
                 if (hasQueuedPredecessors())
                     return -1;
                 int available = getState();
@@ -358,6 +386,10 @@ public class Semaphore implements java.io.Serializable {
      *
      * @return {@code true} if a permit was acquired and {@code false}
      *         otherwise
+     */
+
+    /**
+     * 这个方法在公平模式下会打破公平策略。想保持公平策略，请使用tryAcquire(permits, 0, TimeUnit.SECONDS)。
      */
     public boolean tryAcquire() {
         return sync.nonfairTryAcquireShared(1) >= 0;
@@ -520,6 +552,10 @@ public class Semaphore implements java.io.Serializable {
      * @return {@code true} if the permits were acquired and
      *         {@code false} otherwise
      * @throws IllegalArgumentException if {@code permits} is negative
+     */
+
+    /**
+     * 这个方法在公平模式下会打破公平策略。想保持公平策略，请使用tryAcquire(permits, 0, TimeUnit.SECONDS)。
      */
     public boolean tryAcquire(int permits) {
         if (permits < 0) throw new IllegalArgumentException();

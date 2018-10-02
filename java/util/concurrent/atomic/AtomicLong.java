@@ -50,6 +50,9 @@ import sun.misc.Unsafe;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ *  这里注意到，AtomicLong中还提供了一个包内可见的静态域VM_SUPPORTS_LONG_CAS来
+ *  表示底层是否支持Long类型(8字节)的lockless CAS操作。
  */
 public class AtomicLong extends Number implements java.io.Serializable {
     private static final long serialVersionUID = 1927816293512124184L;
@@ -119,6 +122,11 @@ public class AtomicLong extends Number implements java.io.Serializable {
      *
      * @param newValue the new value
      * @since 1.6
+     *
+     *  从实现上看，如果平台是SPARC或者X86或者平台支持8字节CAS，就相当于执行了一个volatile write；否则，加锁写。
+     *
+     *  可见，这里会针对long做原子写操作(这里的原子操作应该指的是将long的高4字节和低4字节的操作合并成一个原子操作，
+     *  比如某些平台不支持非volatile的long/double域的原子操作)。
      */
     public final void lazySet(long newValue) {
         unsafe.putOrderedLong(this, valueOffset, newValue);
@@ -142,6 +150,10 @@ public class AtomicLong extends Number implements java.io.Serializable {
      * @param update the new value
      * @return {@code true} if successful. False return indicates that
      * the actual value was not equal to the expected value.
+     *
+     *   从实现中可以看到，如果平台不支持8字节的CAS操作，就会加锁然后进行设置操作；
+     *   如果支持，就会调用Atomic::cmpxchg方法，方法实现可以参考具体平台内联代码
+     *      其实就是(多核情况下带lock前缀的)cmpxchgq指令。
      */
     public final boolean compareAndSet(long expect, long update) {
         return unsafe.compareAndSwapLong(this, valueOffset, expect, update);

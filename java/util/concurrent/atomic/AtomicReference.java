@@ -111,6 +111,8 @@ public class AtomicReference<V> implements java.io.Serializable {
      * @param update the new value
      * @return {@code true} if successful. False return indicates that
      * the actual value was not equal to the expected value.
+     *
+     * 比较的是地址还是equals？感觉是地址吧
      */
     public final boolean compareAndSet(V expect, V update) {
         return unsafe.compareAndSwapObject(this, valueOffset, expect, update);

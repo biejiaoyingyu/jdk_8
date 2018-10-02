@@ -181,6 +181,10 @@ public interface Lock {
      * circumstances and the exception type must be documented by that
      * {@code Lock} implementation.
      */
+
+    /**
+     * 获取锁，如果锁无法获取，当前线程被阻塞，直到锁可以获取并获取成功为止。
+     */
     void lock();
 
     /**
@@ -229,6 +233,17 @@ public interface Lock {
      *         interrupted while acquiring the lock (and interruption
      *         of lock acquisition is supported)
      */
+
+    /**
+     * 在当前线程没有被中断的情况下获取锁。
+     *
+     * 如果获取成功，方法结束。
+     *
+     * 如果锁无法获取，当前线程被阻塞，直到下面情况发生：
+     *
+     * 1.当前线程(被唤醒后)成功获取锁。
+     * 2.当前线程被其他线程中断。
+     */
     void lockInterruptibly() throws InterruptedException;
 
     /**
@@ -257,6 +272,12 @@ public interface Lock {
      *
      * @return {@code true} if the lock was acquired and
      *         {@code false} otherwise
+     */
+    /**
+     * 如果当前锁是可用的，获取锁。
+     *
+     * 获取成功后，返回true。
+     * 如果当前锁不可用，返回false。
      */
     boolean tryLock();
 
@@ -318,6 +339,18 @@ public interface Lock {
      *         while acquiring the lock (and interruption of lock
      *         acquisition is supported)
      */
+
+    /**
+     * 如果锁在给定超时时间内可用，并且当前线程没有被中断，那么获取锁。
+     *
+     * 如果锁可用，获取锁成功并返回true。
+     *
+     * 如果锁无法获取，当前线程被阻塞，直到下面情况发生：
+     *
+     * 1.当前线程(被唤醒后)成功获取锁。
+     * 2.当前线程被其他线程中断。
+     * 3.指定的等待时间超时。
+     */
     boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
 
     /**
@@ -331,6 +364,10 @@ public interface Lock {
      * an (unchecked) exception if the restriction is violated.
      * Any restrictions and the exception
      * type must be documented by that {@code Lock} implementation.
+     */
+
+    /**
+     * 释放锁。
      */
     void unlock();
 
@@ -352,6 +389,14 @@ public interface Lock {
      * @return A new {@link Condition} instance for this {@code Lock} instance
      * @throws UnsupportedOperationException if this {@code Lock}
      *         implementation does not support conditions
+     */
+
+    /**
+     * 返回一个和当前锁实例相关联的条件。
+     *
+     * 当前线程必须首先获取锁后才能在锁条件上等待。
+     * 一个Condition的await()方法调用会在等待之前自动释放锁，在等待结束
+     * 前重新获取锁。
      */
     Condition newCondition();
 }

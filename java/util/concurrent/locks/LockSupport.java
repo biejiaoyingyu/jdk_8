@@ -116,6 +116,16 @@ import sun.misc.Unsafe;
  *     LockSupport.unpark(waiters.peek());
  *   }
  * }}</pre>
+ *
+ * LockSupport是用于构建锁和其他同步机制的基础类，提供了基本的线程阻塞行为。
+ *
+ *   LockSupport中使用Unsafe来做一些阻塞相关的操作，如park、unpark；
+ *   同时也使用Unsafe来支持对Thread中的parkBlocker域的访问。
+ *
+ *
+ * 1.Java线程一般与操作系统进程是一对一的关系，比如在linux平台，对应的是linux的轻量级进程(也就是linux的线程)。
+ * 2.linux线程的调度和具体调度器有关，比如CFS调度器下，所有待调度的线程按照nice值排列在一棵红黑树中；系统级的休
+ * 眠与唤醒依赖系统信号，如果一个线程休眠，会被从红黑树移动到一个等待队列中，被唤醒后再移动回来，大体的过程是这样的。
  */
 public class LockSupport {
     private LockSupport() {} // Cannot be instantiated.
@@ -135,6 +145,10 @@ public class LockSupport {
      *
      * @param thread the thread to unpark, or {@code null}, in which case
      *        this operation has no effect
+     *
+     *  接下来看一下unpark系列方法，unpark相当于释放许可(或使许可变为可用)。
+     *  调用unpark方法会使目标线程在之前阻塞(调用park)地方继续执行，如果目标
+     *  线程之前没有调用过park，那么在接下来调用park时不会阻塞。
      */
     public static void unpark(Thread thread) {
         if (thread != null)
@@ -168,6 +182,18 @@ public class LockSupport {
      * @param blocker the synchronization object responsible for this
      *        thread parking
      * @since 1.6
+     *
+     *
+     *    看一下LockSupport支持的park操作，park相当于获取可用的许可(初始的许可不可用)，
+     *    调用park()方法会使得当前调用线程阻塞(之前不要调用unpark方法)。
+     *
+     *     park系列方法内部都是调用Unsafe的park方法，找一下Unsafe中park方法的实现。
+     *
+     *     内部调用了线程的parker对象的park方法。
+     *
+     *     park实现和具体平台相关，
+     *
+     *     可见，在linux平台底层用的是POSIX threads API
      */
     public static void park(Object blocker) {
         Thread t = Thread.currentThread();

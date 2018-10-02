@@ -115,6 +115,8 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      *
      * @param newValue the new value
      * @since 1.6
+     *
+     * 相当于普通的写操作
      */
     public final void lazySet(int newValue) {
         unsafe.putOrderedInt(this, valueOffset, newValue);
@@ -162,6 +164,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      *  前缀也是内存屏障，它的作用是在执行后面指令的过程中锁总线(或者是锁cacheline)，保证一致性。后面的
      *  指令cmpxchgl就是x86的比较并交换指令了。
      *
+     *  先获取旧值，如果旧值改变了不会set返回fasle，如果旧值没有改变，返回true
      *
      */
     public final boolean compareAndSet(int expect, int update) {
@@ -221,6 +224,11 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * Atomically increments by one the current value.
      *
      * @return the updated value
+     *
+     *  这个方法也体现了CAS一般是使用风格-CAS Loop，不断重试，直到成功。
+     *  当然，这也不是绝对的，JVM底层完全可以用更好的方式也替换这些方法，
+     *  比如使用内联的lock;xadd就会比cmpxchg指令更好一些。
+     *
      */
     public final int incrementAndGet() {
         return unsafe.getAndAddInt(this, valueOffset, 1) + 1;

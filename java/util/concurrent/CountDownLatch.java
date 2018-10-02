@@ -153,10 +153,25 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * @since 1.5
  * @author Doug Lea
  */
+
+/**
+ * CountDownLatch是一种锁，称为闭锁。可以让一个或多个线程等待另外一个或多个线程执行完毕后再执行。
+ * CountDownLatch也是基于AQS构建，使用共享模式。
+ * CountDownLatch中提供一个count值来表示要等待的(其他任务)完成次数，常规用法有两种：
+ * Count(1)和Count(N)。举个栗子，百米赛跑，N个选手，每个选手可以看成是一个线程。
+ * 起跑前，选手准备(线程启动，然后在Count(1)上阻塞)，当发令枪响后(相当于Count(1)闭锁释放)，
+ * 选手一起起跑(相当于线程通过Count(1)继续执行)，当所有选手都通过终点(相当于Count(N)闭锁释放)，然后再统
+ *
+ *   1.建立一个count为n的闭锁后，闭锁的内部计数为n，这时如果有线程调用闭锁的await方法，会阻塞。
+ *   2.每一次调用闭锁的countDown方法，内部计数就会减1，当闭锁的countDown方法被调用n次后，内部
+ *   计数减为0，这时在闭锁await方法上等待的线程就被唤醒了。
+ */
 public class CountDownLatch {
     /**
      * Synchronization control For CountDownLatch.
      * Uses AQS state to represent count.
+     *
+     * CountDownLatch内部同步器，利用AQS的state来表示count。
      */
     private static final class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 4982264981922014374L;
@@ -169,10 +184,17 @@ public class CountDownLatch {
             return getState();
         }
 
+        //如果当前count为0，那么方法返回1，
+        //按照之前对AQS的分析，请求成功，并唤醒同步队列里下一个共享模式的线程(这里都是共享模式的)。
+        //如果当前count不为0，那么方法返回-1，请求失败，当前线程最终会被阻塞(之前会不止一次调用tryAcquireShared)。
         protected int tryAcquireShared(int acquires) {
             return (getState() == 0) ? 1 : -1;
         }
 
+        // 如果count为0，返回false，相当于释放失败，因为此时闭锁处于开放状态，没有必要在打开。
+        // 如果count不为0，递减count。
+        // 最后如果count为0，说明关闭的闭锁打开了，那么返回true，后面会唤醒等待队列中的线程。
+        // 如果count不为0，说明闭锁还是处于关闭状态，返回false。
         protected boolean tryReleaseShared(int releases) {
             // Decrement count; signal when transition to zero
             for (;;) {
@@ -227,6 +249,11 @@ public class CountDownLatch {
      * @throws InterruptedException if the current thread is interrupted
      *         while waiting
      */
+    /**
+     * 如果当前count为0，那么方法立即返回。
+     *
+     * 如果当前count不为0，那么当前线程会一直等待，直到count被(其他线程)减到0或者当前线程被中断。
+     */
     public void await() throws InterruptedException {
         sync.acquireSharedInterruptibly(1);
     }
@@ -272,6 +299,12 @@ public class CountDownLatch {
      * @throws InterruptedException if the current thread is interrupted
      *         while waiting
      */
+    /**
+     * 如果当前count为0，那么方法立即返回true。
+     *
+     * 如果当前count不为0，那么当前线程会一直等待，直到count被(其他线程)减到0或者当前线程被中断或者超时。
+     * 成功返回true，超时返回false，被中断抛异常。
+     */
     public boolean await(long timeout, TimeUnit unit)
         throws InterruptedException {
         return sync.tryAcquireSharedNanos(1, unit.toNanos(timeout));
@@ -287,6 +320,11 @@ public class CountDownLatch {
      *
      * <p>If the current count equals zero then nothing happens.
      */
+    /**
+     * 如果当前count大于0，递减count。如果递减后，count等于0，那么AQS中所有等待线程都被唤醒。
+     *
+     * 如果当前count等于0，什么事都不会发生。
+     */
     public void countDown() {
         sync.releaseShared(1);
     }
@@ -297,6 +335,9 @@ public class CountDownLatch {
      * <p>This method is typically used for debugging and testing purposes.
      *
      * @return the current count
+     */
+    /**
+     * 获取当前count值。
      */
     public long getCount() {
         return sync.getCount();
