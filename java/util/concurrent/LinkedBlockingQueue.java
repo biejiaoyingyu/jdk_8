@@ -77,6 +77,14 @@ import java.util.function.Consumer;
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
  */
+
+/**
+ * LinkedBlockingQueue是一种基于单向链表实现的有界的(可选的，不指定默认int最大值)阻塞队列。
+ * 队列中的元素遵循先入先出(FIFO)的规则。新元素插入到队列的尾部，从队列头部取出元素。
+ * (在并发程序中，基于链表实现的队列和基于数组实现的队列相比，往往具有更高的吞吐量，但性能稍差一些)
+ *
+ * 首先可见，内部为单向链表；其次，内部为两把锁：存锁和取锁，并分别关联一个条件(是一种双锁队列)。
+ */
 public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         implements BlockingQueue<E>, java.io.Serializable {
     private static final long serialVersionUID = -6903933977591709194L;
@@ -137,6 +145,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     private final int capacity;
 
     /** Current number of elements */
+    //这里的count为原子量，避免了一些使用count的地方需要加两把锁
     private final AtomicInteger count = new AtomicInteger();
 
     /**
@@ -351,11 +360,17 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
             }
             enqueue(node);
             c = count.getAndIncrement();
+             /*
+             * 注意这里的处理：和单锁队列不同，count为原子量，不需要锁保护。
+             * put过程中可能有其他线程执行多次get,所以这里需要判断一下当前
+             * 如果还有剩余容量，那么继续唤醒notFull条件上等待的线程。
+             */
             if (c + 1 < capacity)
                 notFull.signal();
         } finally {
             putLock.unlock();
         }
+        //如果count又0变为1，说明在队列是空的情况下插入了1个元素，唤醒notNull条件上等待的线程。
         if (c == 0)
             signalNotEmpty();
     }
@@ -543,6 +558,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
      * @param o element to be removed from this queue, if present
      * @return {@code true} if this queue changed as a result of the call
      */
+    //但有些方法里会同时使用两把锁，比如remove方法
     public boolean remove(Object o) {
         if (o == null) return false;
         fullyLock();

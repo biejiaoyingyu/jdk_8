@@ -108,6 +108,14 @@ import java.util.Collection;
  * 与Synchronized相比较而言，ReentrantLock有以下优势：支持公平/非公平锁、支持可中断的锁、支持非阻塞
  * 的tryLock(可超时)、支持锁条件、可跨代码块使用(一个地方加锁，另一个地方解锁)，总之比Synchronized更
  * 加灵活。但也有缺点，比如锁需要显示解锁、无法充分享用JVM内部性能提升带来的好处等等。
+ *
+ *
+ * 非公平锁在调用 lock 后，首先就会调用 CAS 进行一次抢锁，如果这个时候恰巧锁没有被占用，那么直接就获取到锁返回了。
+ * 非公平锁在 CAS 失败后，和公平锁一样都会进入到 tryAcquire 方法，在 tryAcquire 方法中，如果发现锁这个时候被释放了
+ * （state == 0），非公平锁会直接 CAS 抢锁，但是公平锁会判断等待队列是否有线程处于等待状态，如果有则不去抢锁，乖乖排到后面。
+ * 公平锁和非公平锁就这两点区别，如果这两次 CAS 都不成功，那么后面非公平锁和公平锁是一样的，都要进入到阻塞队列等待唤醒。
+ * 相对来说，非公平锁会有更好的性能，因为它的吞吐量比较大。当然，非公平锁让获取锁的时间变得更加不确定，可能会导致在阻塞队列
+ * 中的线程长期处于饥饿状态。
  */
 public class ReentrantLock implements Lock, java.io.Serializable {
     private static final long serialVersionUID = 7373984872572414699L;
@@ -176,6 +184,8 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             boolean free = false;
             if (c == 0) {
                 //如果当前线程完全释放了锁(重入次数为0)
+                // 是否完全释放锁
+                // 其实就是重入的问题，如果c==0，也就是说没有嵌套锁了，可以释放了，否则还不能释放掉
                 free = true;
                 //解除所有权关系。
                 setExclusiveOwnerThread(null);
@@ -192,6 +202,8 @@ public class ReentrantLock implements Lock, java.io.Serializable {
             return getExclusiveOwnerThread() == Thread.currentThread();
         }
 
+
+        //每个 ReentrantLock 实例可以通过调用多次 newCondition 产生多个 ConditionObject 的实例：
         final ConditionObject newCondition() {
             return new ConditionObject();
         }
@@ -250,6 +262,10 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         final void lock() {
             //这里首先尝试一个短代码路径，直接CAS设置state，尝试获取锁。
             //相当于一个插队的动作(可能出现AQS等待队列里有线程在等待，但当前线程竞争成功)。
+
+            /**
+             * 和公平锁相比，这里会直接先进行一次CAS，成功就返回了
+             */
             if (compareAndSetState(0, 1))
                 setExclusiveOwnerThread(Thread.currentThread());
             else
@@ -276,6 +292,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     static final class FairSync extends Sync {
         private static final long serialVersionUID = -3000897897090466540L;
 
+        // 争锁
         final void lock() {
             acquire(1);
         }
@@ -289,17 +306,34 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * 只有在递归(重入)或者同步队列中没有其他线程
          * 或者当前线程是等待队列中的第一个线程时才准许访问。
          */
+        // 尝试直接获取锁，返回值是boolean，代表是否获取到锁
+        // 返回true：1.没有线程在等待锁；2.重入锁，线程本来就持有锁，也就可以理所当然可以直接获取
         protected final boolean tryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
+            // state == 0 此时此刻没有线程持有锁
             if (c == 0) {
                 //如果当前锁可用，且同步等待队列中没有其他线程，那么尝试设置state
+
+                // 虽然此时此刻锁是可以用的，但是这是公平锁，既然是公平，就得讲究先来后到，
+                // 看看有没有别人在队列中等了半天了
+
+                //如果设置成功，相当于获取锁成功，设置所有权关系。
+
+                // 如果没有线程在等待，那就用CAS尝试一下，成功了就获取到锁了，
+                // 不成功的话，只能说明一个问题，就在刚刚几乎同一时刻有个线程抢先了 =_=
+                // 因为刚刚还没人的，我判断过了???
+
+                /**
+                 * 和非公平锁相比，这里多了一个判断：是否有线程在等待
+                 */
                 if (!hasQueuedPredecessors() && compareAndSetState(0, acquires)) {
-                    //如果设置成功，相当于获取锁成功，设置所有权关系。
+                    // 到这里就是获取到锁了，标记一下，告诉大家，现在是我占用了锁
                     setExclusiveOwnerThread(current);
                     return true;
                 }
             }
+            // 会进入这个else if分支，说明是重入了，需要操作：state=state+1
             else if (current == getExclusiveOwnerThread()) {
                 //如果当前线程已经持有该锁，那么累计重入次数。
                 int nextc = c + acquires;
@@ -308,6 +342,12 @@ public class ReentrantLock implements Lock, java.io.Serializable {
                 setState(nextc);
                 return true;
             }
+
+            // 如果到这里，说明前面的if和else if都没有返回true，说明没有获取到锁
+            // 回到上面一个外层调用方法继续看:
+            // if (!tryAcquire(arg)
+            //        && acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+            //     selfInterrupt();
             return false;
         }
     }

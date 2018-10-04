@@ -59,6 +59,15 @@ import java.util.concurrent.locks.LockSupport;
  * @since 1.5
  * @author Doug Lea
  * @param <V> The result type returned by this FutureTask's {@code get} methods
+ *
+ * FutureTask是一种异步任务(或异步计算)，举个栗子，主线程的逻辑中需要使用某个值，但这个
+ * 值需要复杂的运算得来，那么主线程可以提前建立一个异步任务来计算这个值(在其他
+ * 的线程中计算)，然后去做其他事情，当需要这个值的时候再通过刚才建立的异步任务来获取这个值，
+ * 有点并行的意思，这样可以缩短整个主线程逻辑的执行时间。FutureTask也是基于AQS来构建的，使
+ * 用共享模式，使用AQS的状态来表示异步任务的运行状态。
+ *
+ *
+ *   RunnableFuture又扩展了Runnable和Future
  */
 public class FutureTask<V> implements RunnableFuture<V> {
     /*

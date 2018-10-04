@@ -78,6 +78,19 @@ import java.util.Spliterator;
  * @since 1.5
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
+ *
+ *   ArrayBlockingQueue是一种基于数组实现的有界的阻塞队列。队列中的元素遵循先入
+ *   先出(FIFO)的规则。新元素插入到队列的尾部，从队列头部取出元素。
+ *   和普通队列有所不同，该队列支持阻塞操作。比如从空队列中取元素，会导致当前线程
+ *   阻塞，直到其他线程将元素放入队列；将元素插入已经满的队列，同样会导致当前线程阻塞，
+ *   直到其他线程从队列中取出元素。ArrayBlockingQueue也支持公平和非公平策略(针对队
+ *   列中元素的存取线程，也可认为是元素的生产者和消费者)。
+ *
+ *   ArrayBlockingQueue内部结构非常简单，就是一个数组，一把锁，两个条件；也可以看到，
+ *   上面提到的公平和非公平策略是由内部的重入锁来支持的。
+ *
+ *   ArrayBlockingQueue的Iterator是弱一致的。
+ *
  */
 public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         implements BlockingQueue<E>, java.io.Serializable {
@@ -91,15 +104,19 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     private static final long serialVersionUID = -817911632652898426L;
 
     /** The queued items */
+    /** 保存内部元素的数组  */
     final Object[] items;
 
     /** items index for next take, poll, peek or remove */
+    /** 取元素使用的下标 */
     int takeIndex;
 
     /** items index for next put, offer, or add */
+    /** 存元素使用的下标 */
     int putIndex;
 
     /** Number of elements in the queue */
+    /** 队列中元素数量 */
     int count;
 
     /*
@@ -108,12 +125,15 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      */
 
     /** Main lock guarding all access */
+    /** 保护存取的锁 */
     final ReentrantLock lock;
 
     /** Condition for waiting takes */
+    /** 取的等待条件 */
     private final Condition notEmpty;
 
     /** Condition for waiting puts */
+    /** 存的等待条件 */
     private final Condition notFull;
 
     /**
@@ -344,13 +364,21 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * @throws InterruptedException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      */
+
+
     public void put(E e) throws InterruptedException {
         checkNotNull(e);
         final ReentrantLock lock = this.lock;
+        //由于需要支持方法可中断行为，这里使用可中断的锁操作。
         lock.lockInterruptibly();
         try {
+            //队列满时，在notFull条件上等待。
             while (count == items.length)
                 notFull.await();
+            /**
+             * 在内部数组的putIndex位置插入元素，调整putIndex和count，然后唤醒notEmpty条件上等待的线程。
+             * 本方法只有在持有锁的情况下才会被调用。
+             */
             enqueue(e);
         } finally {
             lock.unlock();
@@ -399,8 +427,12 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
-            while (count == 0)
+            while (count == 0)//队列空时，在notEmpty条件上等待。
                 notEmpty.await();
+            /**
+             * 从takeInde的位置取出元素，增加takeIndex，减少count，唤醒在notFull上等待的线程。
+             * 本方法只有在持有锁的情况下才会被调用。
+             */
             return dequeue();
         } finally {
             lock.unlock();

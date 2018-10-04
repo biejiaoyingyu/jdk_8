@@ -81,6 +81,14 @@ import java.util.Spliterators;
  * @author Doug Lea and Bill Scherer and Michael Scott
  * @param <E> the type of elements held in this collection
  */
+
+/**
+ * SynchronousQueue是一种特殊的阻塞队列，它本身没有容量，只有当一个线程从队列取数据的同时，
+ * 另一个线程才能放一个数据到队列中，反之亦然。存取过程相当于一个线程把数据(安全的)交给另一个
+ * 线程的过程。SynchronousQueue也支持公平和非公平模式。
+ *
+ * SynchronousQueue内部采用伪栈和伪队列来实现，分别对应非公平模式和公平模式
+ */
 public class SynchronousQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, java.io.Serializable {
     private static final long serialVersionUID = -3223113410248163686L;
@@ -165,6 +173,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
     /**
      * Shared internal API for dual stacks and queues.
      */
+
     abstract static class Transferer<E> {
         /**
          * Performs a put or take.
@@ -172,13 +181,16 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
          * @param e if non-null, the item to be handed to a consumer;
          *          if null, requests that transfer return an item
          *          offered by producer.
-         * @param timed if this operation should timeout
-         * @param nanos the timeout, in nanoseconds
+         *          如果不为null，相当于将一个数据交给消费者；
+         *          如果为null，相当于从一个生产者接收一个消费者交出的数据。
+         * @param timed if this operation should timeout 操作是否支持超时。
+         * @param nanos the timeout, in nanoseconds 超时时间，单位纳秒。
          * @return if non-null, the item provided or received; if null,
          *         the operation failed due to timeout or interrupt --
          *         the caller can distinguish which of these occurred
          *         by checking Thread.interrupted.
          */
+        //转移数据的方法，用来实现put或者take。
         abstract E transfer(E e, boolean timed, long nanos);
     }
 
@@ -208,6 +220,7 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
     static final long spinForTimeoutThreshold = 1000L;
 
     /** Dual stack */
+    //先看下伪栈实现，内部结构如
     static final class TransferStack<E> extends Transferer<E> {
         /*
          * This extends Scherer-Scott dual stack algorithm, differing,
@@ -219,19 +232,24 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
 
         /* Modes for SNodes, ORed together in node fields */
         /** Node represents an unfulfilled consumer */
+        /** 表示一个没有得到数据的消费者 */
         static final int REQUEST    = 0;
         /** Node represents an unfulfilled producer */
+        /** 表示一个没有交出数据的生产者 */
         static final int DATA       = 1;
         /** Node is fulfilling another unfulfilled DATA or REQUEST */
+        /**
+         * 表示正在匹配另一个生产者或者消费者。
+         */
         static final int FULFILLING = 2;
-
+        /** 判断是否包含正在匹配(FULFILLING)的标记 */
         /** Returns true if m has fulfilling bit set. */
         static boolean isFulfilling(int m) { return (m & FULFILLING) != 0; }
 
         /** Node class for TransferStacks. */
         static final class SNode {
-            volatile SNode next;        // next node in stack
-            volatile SNode match;       // the node matched to this
+            volatile SNode next;        // next node in stack // 栈中的下一个节点
+            volatile SNode match;       // the node matched to this //和当前节点匹配的节点
             volatile Thread waiter;     // to control park/unpark
             Object item;                // data; or null for REQUESTs
             int mode;
@@ -239,6 +257,8 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
             // since they are always written before, and read after,
             // other volatile/atomic operations.
 
+            // Note: item和mode不需要volatile修饰，
+            // 是因为它们在其他的volatile/atomic操作之前写，之后读。
             SNode(Object item) {
                 this.item = item;
             }
@@ -256,9 +276,15 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
              * @param s the node to match
              * @return true if successfully matched to s
              */
+
+            /**
+             * 尝试匹配节点s和当前节点，如果匹配成功，唤醒等待线程。
+             * (向消费者传递数据或向生产者获取数据)调用tryMatch方法
+             * 来确定它们的等待线程，然后唤醒这个等待线程。
+             */
             boolean tryMatch(SNode s) {
-                if (match == null &&
-                    UNSAFE.compareAndSwapObject(this, matchOffset, null, s)) {
+                //如果当前节点的match为空,那么CAS设置s为match，然后唤醒waiter。
+                if (match == null && UNSAFE.compareAndSwapObject(this, matchOffset, null, s)) {
                     Thread w = waiter;
                     if (w != null) {    // waiters need at most one unpark
                         waiter = null;
@@ -266,11 +292,17 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
                     }
                     return true;
                 }
+                //如果match不为null，或者CAS设置match失败，那么比较match和s是否为相同对象。
+                //如果相同，说明已经完成匹配，匹配成功。
                 return match == s;
             }
 
             /**
              * Tries to cancel a wait by matching node to itself.
+             */
+
+            /**
+             * 尝试取消当前节点(有线程等待)，通过将match设置为自身。
              */
             void tryCancel() {
                 UNSAFE.compareAndSwapObject(this, matchOffset, null, this);
@@ -323,6 +355,25 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
 
         /**
          * Puts or takes an item.
+         */
+
+        /*
+         * 基本算法是在一个无限循环中尝试下面三种情况里面的一种：
+         *
+         * 1. 如果当前栈为空或者包含与给定节点模式相同的节点，尝试
+         *    将节点压入栈内，并等待一个匹配节点，最后返回匹配节点
+         *    或者null(如果被取消)。
+         *
+         * 2. 如果当前栈包含于给定节点模式互补的节点，尝试将这个节
+         *    点打上FULFILLING标记，然后压入栈中，和相应的节点进行
+         *    匹配，然后将两个节点(当前节点和互补节点)弹出栈，并返
+         *    回匹配节点的数据。匹配和删除动作不是必须要做的，因为
+         *    其他线程会执行动作3:
+         *
+         * 3. 如果栈顶已经存在一个FULFILLING(正在满足其他节点)的节
+         *    点，帮助这个节点完成匹配和移除(出栈)的操作。然后继续
+         *    执行(主循环)。这部分代码基本和动作2的代码一样，只是
+         *    不会返回节点的数据。
          */
         @SuppressWarnings("unchecked")
         E transfer(E e, boolean timed, long nanos) {

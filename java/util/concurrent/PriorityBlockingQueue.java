@@ -104,6 +104,14 @@ import java.util.function.Consumer;
  * @since 1.5
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
+ *
+ * PriorityBlockingQueue是一种基于PriorityQueue实现的无界的阻塞队列。队列中的元素按
+ * 照某种排序规则出队。插入队列的元素必须是可比较的。
+ *
+ * 首先可见，内部是一个PriorityQueue(优先队列)，然后有一把锁，一个锁条件。结构比较简单。
+ *
+ * PriorityQueue内部数据结构是二叉堆，所谓二叉堆是一个完全二叉树，每个节点都比其左右两个
+ * 子节点大(或者小)，保证最大(小)的元素在堆顶，所以放入PriorityQueue的元素必须
  */
 @SuppressWarnings("unchecked")
 public class PriorityBlockingQueue<E> extends AbstractQueue<E>
@@ -507,6 +515,7 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
      *         priority queue's ordering
      * @throws NullPointerException if the specified element is null
      */
+    //由于PriorityBlockingQueue是一个无界队列，所以put方法不需要阻塞，直接往队列里面放。但要注意内存的限制。
     public void put(E e) {
         offer(e); // never need to block
     }
@@ -540,6 +549,7 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
+    //队列中没有元素时，当前线程在notEmpty上等待。
     public E take() throws InterruptedException {
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();

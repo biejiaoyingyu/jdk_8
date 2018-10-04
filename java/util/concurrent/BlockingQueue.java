@@ -196,6 +196,11 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @throws IllegalArgumentException if some property of the specified
      *         element prevents it from being added to this queue
      */
+
+    /**
+     * 将一个元素放入队列。
+     * 成功返回true；失败抛IllegalStateException异常。
+     */
     boolean add(E e);
 
     /**
@@ -215,6 +220,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @throws IllegalArgumentException if some property of the specified
      *         element prevents it from being added to this queue
      */
+    /**
+     * 将一个元素放入队列。
+     * 成功返回true；失败返回false。
+     */
     boolean offer(E e);
 
     /**
@@ -228,6 +237,11 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @throws NullPointerException if the specified element is null
      * @throws IllegalArgumentException if some property of the specified
      *         element prevents it from being added to this queue
+     */
+
+    /**
+     * 将一个元素放入队列。
+     * 如果元素无法放入队列，当前操作线程会等待，直到元素可以放入队列。
      */
     void put(E e) throws InterruptedException;
 
@@ -249,6 +263,13 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @throws IllegalArgumentException if some property of the specified
      *         element prevents it from being added to this queue
      */
+
+    /**
+     * 将一个元素放入队列。
+     * 如果元素无法放入队列，当前操作线程会等待，直到元素可以放入队列或者
+     * 给定的时间超时。
+     * 成功返回true；超时返回false；
+     */
     boolean offer(E e, long timeout, TimeUnit unit)
         throws InterruptedException;
 
@@ -258,6 +279,11 @@ public interface BlockingQueue<E> extends Queue<E> {
      *
      * @return the head of this queue
      * @throws InterruptedException if interrupted while waiting
+     */
+
+    /**
+     * 从队列头部获取并删除一个元素。
+     * 如果无法获取元素，当前操作线程等待，直到有元素可以被获取。
      */
     E take() throws InterruptedException;
 
@@ -272,6 +298,12 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @return the head of this queue, or {@code null} if the
      *         specified waiting time elapses before an element is available
      * @throws InterruptedException if interrupted while waiting
+     */
+
+    /**
+     * 从队列头部获取并删除一个元素。
+     * 如果无法获取元素，当前操作线程等待，直到有元素可以被获取或者给定时间超时。
+     * 如果超时，返回null。
      */
     E poll(long timeout, TimeUnit unit)
         throws InterruptedException;
@@ -288,6 +320,9 @@ public interface BlockingQueue<E> extends Queue<E> {
      * insert or remove an element.
      *
      * @return the remaining capacity
+     */
+    /**
+     * 获取队列剩余容量。
      */
     int remainingCapacity();
 
@@ -307,6 +342,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @throws NullPointerException if the specified element is null
      *         (<a href="../Collection.html#optional-restrictions">optional</a>)
      */
+
+    /**
+     * 移除队列中和给定元素相同的元素。
+     */
     boolean remove(Object o);
 
     /**
@@ -321,6 +360,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      *         (<a href="../Collection.html#optional-restrictions">optional</a>)
      * @throws NullPointerException if the specified element is null
      *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     */
+
+    /**
+     * 判断队列中是否包含给定元素。
      */
     public boolean contains(Object o);
 
@@ -347,6 +390,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      *         queue, or some property of an element of this queue prevents
      *         it from being added to the specified collection
      */
+
+    /**
+     * 移除队列中所有的可用元素，并把它们添加到给定集合。
+     */
     int drainTo(Collection<? super E> c);
 
     /**
@@ -371,6 +418,10 @@ public interface BlockingQueue<E> extends Queue<E> {
      * @throws IllegalArgumentException if the specified collection is this
      *         queue, or some property of an element of this queue prevents
      *         it from being added to the specified collection
+     */
+
+    /**
+     * 移除队列中不超过给定数量的可用元素，并把它们添加到给定集合。
      */
     int drainTo(Collection<? super E> c, int maxElements);
 }

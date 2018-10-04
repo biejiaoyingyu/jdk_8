@@ -74,6 +74,8 @@ public interface ConcurrentMap<K, V> extends Map<K, V> {
      * @throws NullPointerException {@inheritDoc}
      * @since 1.8
      */
+
+
     @Override
     default V getOrDefault(Object key, V defaultValue) {
         V v;
@@ -147,7 +149,17 @@ public interface ConcurrentMap<K, V> extends Map<K, V> {
      * @throws IllegalArgumentException if some property of the specified key
      *         or value prevents it from being stored in this map
      */
-     V putIfAbsent(K key, V value);
+
+    /**
+     * 如果map中已经存在给定的key，返回map中key对应的value；
+     * 如果不存在给定的key，插入给定的key和value。
+     * 这个是一个原子操作，逻辑相当于：
+     *   if (!map.containsKey(key))
+     *       return map.put(key, value);
+     *   else
+     *       return map.get(key);
+     */
+    V putIfAbsent(K key, V value);
 
     /**
      * Removes the entry for a key only if currently mapped to a given value.
@@ -176,6 +188,16 @@ public interface ConcurrentMap<K, V> extends Map<K, V> {
      * @throws NullPointerException if the specified key or value is null,
      *         and this map does not permit null keys or values
      *         (<a href="../Collection.html#optional-restrictions">optional</a>)
+     */
+
+    /**
+     * 如果map中存在给定的key，并且map中对应的value也等于给定的value，
+     * 那么删除这个key和value。
+     * 这是一个原子操作，逻辑相当于：
+     *   if (map.containsKey(key) && map.get(key).equals(value)) {
+     *       map.remove(key);
+     *       return true;
+     *   } else return false;
      */
     boolean remove(Object key, Object value);
 
@@ -207,6 +229,16 @@ public interface ConcurrentMap<K, V> extends Map<K, V> {
      *         and this map does not permit null keys or values
      * @throws IllegalArgumentException if some property of a specified key
      *         or value prevents it from being stored in this map
+     */
+
+    /**
+     * 如果map中存在给定的key，并且map中对应的value也等于给定的oldValue，
+     * 那么将这个key对应的value替换成newValue。
+     * 这是一个原子操作，逻辑相当于：
+     *   if (map.containsKey(key) && map.get(key).equals(oldValue)) {
+     *       map.put(key, newValue);
+     *       return true;
+     *   } else return false;
      */
     boolean replace(K key, V oldValue, V newValue);
 
@@ -240,6 +272,15 @@ public interface ConcurrentMap<K, V> extends Map<K, V> {
      *         and this map does not permit null keys or values
      * @throws IllegalArgumentException if some property of the specified key
      *         or value prevents it from being stored in this map
+     */
+
+    /**
+     * 如果map中已经存在给定的key，
+     * 那么将这个key对应的value替换成给定的value。
+     * 这是一个原子操作，逻辑相当于：
+     *   if (map.containsKey(key)) {
+     *       return map.put(key, value);
+     *   } else return null;
      */
     V replace(K key, V value);
 

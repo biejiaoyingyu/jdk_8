@@ -92,6 +92,9 @@ package java.util.concurrent;
  * @since 1.5
  * @author Doug Lea
  * @param <V> The result type returned by this Future's {@code get} method
+ *
+ *           看下Future接口，它提供了取消任务接口，并提供了查看任务状态的接口，最重
+ *           要的是提供了有阻塞行为的获取任务执行结果的接口。
  */
 public interface Future<V> {
 
@@ -116,6 +119,13 @@ public interface Future<V> {
      * typically because it has already completed normally;
      * {@code true} otherwise
      */
+
+    /**
+     * 尝试取消任务的执行，如果任务已经完成或者已经被取消或者由于某种原因
+     * 无法取消，方法返回false。如果任务取消成功，或者任务开始执行之前调用
+     * 了取消方法，那么任务就永远不会执行了。mayInterruptIfRunning参数决定
+     * 了是否要中断执行任务的线程。
+     */
     boolean cancel(boolean mayInterruptIfRunning);
 
     /**
@@ -123,6 +133,10 @@ public interface Future<V> {
      * normally.
      *
      * @return {@code true} if this task was cancelled before it completed
+     */
+
+    /**
+     * 判断任务是否在完成之前被取消。
      */
     boolean isCancelled();
 
@@ -134,6 +148,10 @@ public interface Future<V> {
      * {@code true}.
      *
      * @return {@code true} if this task completed
+     */
+
+    /**
+     * 判断任务是否完成。
      */
     boolean isDone();
 
@@ -147,6 +165,10 @@ public interface Future<V> {
      * exception
      * @throws InterruptedException if the current thread was interrupted
      * while waiting
+     */
+
+    /**
+     * 等待，直到获取任务的执行结果。如果任务还没执行完，这个方法会阻塞。
      */
     V get() throws InterruptedException, ExecutionException;
 
@@ -163,6 +185,10 @@ public interface Future<V> {
      * @throws InterruptedException if the current thread was interrupted
      * while waiting
      * @throws TimeoutException if the wait timed out
+     */
+
+    /**
+     * 等待，在给定的时间内获取任务的执行结果。
      */
     V get(long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException;

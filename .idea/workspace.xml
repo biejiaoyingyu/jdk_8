@@ -2,19 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f0dd2800-4ac5-453c-bdbc-e9e375b2c0c5" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/CountDownLatch.java" afterPath="$PROJECT_DIR$/java/util/concurrent/CountDownLatch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/Semaphore.java" afterPath="$PROJECT_DIR$/java/util/concurrent/Semaphore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicBoolean.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicBoolean.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicInteger.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicInteger.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicIntegerArray.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicIntegerArray.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLong.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLong.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLongArray.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLongArray.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReference.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReference.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReferenceArray.java" afterPath="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReferenceArray.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/Lock.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/Lock.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/LockSupport.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/LockSupport.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/ArrayBlockingQueue.java" afterPath="$PROJECT_DIR$/java/util/concurrent/ArrayBlockingQueue.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/BlockingDeque.java" afterPath="$PROJECT_DIR$/java/util/concurrent/BlockingDeque.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/BlockingQueue.java" afterPath="$PROJECT_DIR$/java/util/concurrent/BlockingQueue.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/ConcurrentHashMap.java" afterPath="$PROJECT_DIR$/java/util/concurrent/ConcurrentHashMap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/ConcurrentMap.java" afterPath="$PROJECT_DIR$/java/util/concurrent/ConcurrentMap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/CyclicBarrier.java" afterPath="$PROJECT_DIR$/java/util/concurrent/CyclicBarrier.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/Future.java" afterPath="$PROJECT_DIR$/java/util/concurrent/Future.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/FutureTask.java" afterPath="$PROJECT_DIR$/java/util/concurrent/FutureTask.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/LinkedBlockingQueue.java" afterPath="$PROJECT_DIR$/java/util/concurrent/LinkedBlockingQueue.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/PriorityBlockingQueue.java" afterPath="$PROJECT_DIR$/java/util/concurrent/PriorityBlockingQueue.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/SynchronousQueue.java" afterPath="$PROJECT_DIR$/java/util/concurrent/SynchronousQueue.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantReadWriteLock.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantReadWriteLock.java" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -36,37 +37,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="AtomicLong.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLong.java">
+      <file leaf-file-name="PriorityBlockingQueue.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/PriorityBlockingQueue.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="227">
-              <caret line="128" column="46" lean-forward="true" selection-start-line="128" selection-start-column="46" selection-end-line="128" selection-end-column="46" />
+            <state relative-caret-position="314">
+              <caret line="115" column="30" lean-forward="true" selection-start-line="115" selection-start-column="30" selection-end-line="115" selection-end-column="30" />
               <folding>
-                <element signature="e#0#10676#0" expanded="true" />
+                <element signature="e#0#36029#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AtomicLongArray.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLongArray.java">
+      <file leaf-file-name="SynchronousQueue.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/SynchronousQueue.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="96" column="39" lean-forward="true" selection-start-line="96" selection-start-column="39" selection-end-line="96" selection-end-column="39" />
+            <state relative-caret-position="731">
+              <caret line="370" column="25" lean-forward="true" selection-start-line="370" selection-start-column="25" selection-end-line="370" selection-end-column="25" />
               <folding>
-                <element signature="e#0#11086#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AtomicReferenceArray.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReferenceArray.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="69" column="55" lean-forward="true" selection-start-line="69" selection-start-column="55" selection-end-line="69" selection-end-column="55" />
-              <folding>
-                <element signature="e#0#10825#0" expanded="true" />
+                <element signature="e#0#47289#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -75,24 +64,13 @@
       <file leaf-file-name="ReentrantLock.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9080">
-              <caret line="849" column="26" lean-forward="true" selection-start-line="849" selection-start-column="26" selection-end-line="849" selection-end-column="26" />
+            <state relative-caret-position="160">
+              <caret line="135" column="65" lean-forward="false" selection-start-line="135" selection-start-column="39" selection-end-line="135" selection-end-column="65" />
               <folding>
-                <element signature="e#0#30301#0" expanded="true" />
-                <element signature="e#10306#10307#0" expanded="true" />
-                <element signature="e#10346#10347#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ReentrantReadWriteLock.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReentrantReadWriteLock.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="461">
-              <caret line="1691" column="7" lean-forward="false" selection-start-line="1691" selection-start-column="7" selection-end-line="1691" selection-end-column="7" />
-              <folding>
-                <element signature="e#0#64254#0" expanded="true" />
+                <element signature="e#6989#6990#0" expanded="true" />
+                <element signature="e#7041#7042#0" expanded="true" />
+                <element signature="e#19442#19443#0" expanded="true" />
+                <element signature="e#19473#19474#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -101,58 +79,82 @@
       <file leaf-file-name="CountDownLatch.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/java/util/concurrent/CountDownLatch.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="322">
+            <state relative-caret-position="349">
               <caret line="166" column="9" lean-forward="false" selection-start-line="166" selection-start-column="9" selection-end-line="166" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ConcurrentMap.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/ConcurrentMap.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="410">
+              <caret line="414" column="24" lean-forward="true" selection-start-line="414" selection-start-column="24" selection-end-line="414" selection-end-column="24" />
               <folding>
-                <element signature="e#0#11874#0" expanded="true" />
+                <element signature="e#0#19643#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Semaphore.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/Semaphore.java">
+      <file leaf-file-name="ConcurrentHashMap.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/ConcurrentHashMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="172" column="6" lean-forward="false" selection-start-line="172" selection-start-column="6" selection-end-line="172" selection-end-column="6" />
+            <state relative-caret-position="160">
+              <caret line="3099" column="33" lean-forward="false" selection-start-line="3099" selection-start-column="27" selection-end-line="3099" selection-end-column="33" />
               <folding>
-                <element signature="e#0#29317#0" expanded="true" />
+                <element signature="e#0#276547#0" expanded="true" />
+                <element signature="e#47344#47345#0" expanded="true" />
+                <element signature="e#47392#47393#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ReadWriteLock.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReadWriteLock.java">
+      <file leaf-file-name="AbstractQueuedSynchronizer.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="421">
-              <caret line="131" column="21" lean-forward="true" selection-start-line="131" selection-start-column="21" selection-end-line="131" selection-end-column="21" />
+            <state relative-caret-position="228">
+              <caret line="3030" column="25" lean-forward="false" selection-start-line="3030" selection-start-column="25" selection-end-line="3030" selection-end-column="25" />
               <folding>
-                <element signature="e#0#4966#0" expanded="true" />
+                <element signature="e#0#121242#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Lock.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/Lock.java">
+      <file leaf-file-name="FutureTask.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/FutureTask.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="319">
-              <caret line="394" column="24" lean-forward="true" selection-start-line="394" selection-start-column="24" selection-end-line="394" selection-end-column="24" />
+            <state relative-caret-position="160">
+              <caret line="365" column="8" lean-forward="false" selection-start-line="365" selection-start-column="8" selection-end-line="365" selection-end-column="8" />
               <folding>
-                <element signature="e#0#14895#0" expanded="true" />
+                <element signature="e#0#16859#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AtomicIntegerArray.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicIntegerArray.java">
+      <file leaf-file-name="Future.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/Future.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
-              <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+            <state relative-caret-position="376">
+              <caret line="96" column="13" lean-forward="false" selection-start-line="96" selection-start-column="13" selection-end-line="96" selection-end-column="13" />
               <folding>
-                <element signature="e#0#11075#0" expanded="true" />
+                <element signature="e#0#6128#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RunnableFuture.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/java/util/concurrent/RunnableFuture.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-508">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#897#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -162,28 +164,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Node</find>
-      <find>acquire</find>
-      <find>public final void acquire</find>
-      <find>tail</find>
-      <find>Node addWaiter(Node mode)</find>
-      <find>boolean acquireQueued(final Node node, int arg)</find>
-      <find>acquireQueued</find>
-      <find>acquireInterruptibly</find>
-      <find>cmpxchgl</find>
-      <find>doReleaseShared</find>
-      <find>acquireShared</find>
-      <find>await</find>
-      <find>getWaitingThreads</find>
-      <find>unPark</find>
-      <find>incrementAndGet()</find>
-      <find>lazyS</find>
-      <find>AtomicIntegerArray</find>
-      <find>getHoldCount</find>
-      <find>readerShouldBlock()</find>
-      <find>fullTryAcquireShared</find>
-      <find />
-      <find>ReadLock implements Lock</find>
+      <find>put</find>
+      <find>put(</find>
+      <find>MAXIMUM_CAPACITY</find>
+      <find>get(</find>
+      <find>final Node&lt;K,V&gt;[] initTable()</find>
+      <find>binCount</find>
+      <find>treeifyBin</find>
+      <find>private transient</find>
+      <find>exclusiveOwnerThread</find>
+      <find>public final void acquire(int arg)</find>
+      <find>addWaiter</find>
+      <find>tryPresize(int size)</find>
+      <find>shouldParkAfterFailedAcquire</find>
+      <find>unLock</find>
+      <find>tryR</find>
+      <find>tryRelease</find>
+      <find>void unlock()</find>
+      <find>void unlock</find>
+      <find>release</find>
+      <find>release</find>
+      <find>release(</find>
+      <find>FairSync extends Sync</find>
+      <find>每个 ReentrantLock 实例可以通过调用多次 newCondition 产生多个 ConditionObject 的实例：</find>
+      <find>AbstractQueuedSynchronizer</find>
+      <find>ConditionObject</find>
+      <find>public final void await()</find>
+      <find>Sync</find>
+      <find>fullyRelease</find>
+      <find>await()</find>
+      <find>if (acquireQueued(node, savedState) &amp;&amp; interruptMode != THROW_IE)</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -197,7 +207,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/locks/LockSupport.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicInteger.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicBoolean.java" />
@@ -207,10 +216,22 @@
         <option value="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLongArray.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReferenceArray.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/locks/Lock.java" />
-        <option value="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantReadWriteLock.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/CountDownLatch.java" />
         <option value="$PROJECT_DIR$/java/util/concurrent/Semaphore.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/CyclicBarrier.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/BlockingDeque.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/BlockingQueue.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/ArrayBlockingQueue.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/LinkedBlockingQueue.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/PriorityBlockingQueue.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/SynchronousQueue.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/FutureTask.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/Future.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/ConcurrentMap.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/ConcurrentHashMap.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java" />
+        <option value="$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java" />
       </list>
     </option>
   </component>
@@ -256,9 +277,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -350,6 +368,9 @@
           <select />
         </subPane>
       </pane>
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="Scratches" />
     </panes>
   </component>
@@ -466,16 +487,16 @@
       <updated>1538407402801</updated>
       <workItem from="1538407404432" duration="487000" />
       <workItem from="1538407899302" duration="170000" />
-      <workItem from="1538445976219" duration="29875000" />
+      <workItem from="1538445976219" duration="29964000" />
+      <workItem from="1538531443413" duration="32823000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="30532000" />
+    <option name="totallyTimeSpent" value="63444000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -483,13 +504,13 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980332" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.07704918" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29954615" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20801815" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980332" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24962178" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -544,13 +565,30 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicIntegerArray.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#11075#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/Semaphore.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2346">
+          <caret line="172" column="6" lean-forward="false" selection-start-line="172" selection-start-column="6" selection-end-line="172" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#29317#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicBoolean.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="37" column="23" lean-forward="true" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#4367#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -558,9 +596,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="527">
           <caret line="54" column="7" lean-forward="true" selection-start-line="54" selection-start-column="7" selection-end-line="54" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#18073#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -568,9 +603,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#10298#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -578,9 +610,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#15739#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -588,7 +618,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="2" lean-forward="false" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -596,9 +625,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
           <caret line="62" column="54" lean-forward="true" selection-start-line="62" selection-start-column="54" selection-end-line="62" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#1311#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -606,9 +632,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#4367#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -616,7 +639,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="2" lean-forward="true" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -631,7 +653,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="2" lean-forward="false" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -639,7 +660,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="129">
           <caret line="293" column="13" lean-forward="true" selection-start-line="293" selection-start-column="13" selection-end-line="293" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -661,19 +681,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="527">
           <caret line="54" column="7" lean-forward="false" selection-start-line="54" selection-start-column="7" selection-end-line="54" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#18073#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/java/util/concurrent/BlockingQueue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#15739#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -681,9 +688,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="309">
           <caret line="58" column="7" lean-forward="true" selection-start-line="58" selection-start-column="7" selection-end-line="58" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#1311#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -691,9 +695,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-561">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#1086#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -701,9 +702,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-561">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#2153#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -711,9 +709,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
           <caret line="70" column="34" lean-forward="false" selection-start-line="70" selection-start-column="34" selection-end-line="70" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#10298#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -729,19 +724,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="54" column="38" lean-forward="true" selection-start-line="54" selection-start-column="38" selection-end-line="54" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#1123#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/java/util/concurrent/BlockingDeque.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#26222#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -749,9 +731,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-918">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#2069#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -760,37 +739,7 @@
         <state relative-caret-position="-6426">
           <caret line="61" column="37" lean-forward="true" selection-start-line="61" selection-start-column="37" selection-end-line="61" selection-end-column="37" />
           <folding>
-            <element signature="e#0#81051#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/java/util/concurrent/ArrayBlockingQueue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="140" column="5" lean-forward="true" selection-start-line="140" selection-start-column="5" selection-end-line="140" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#49282#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="324" column="37" lean-forward="true" selection-start-line="324" selection-start-column="37" selection-end-line="324" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#109151#0" expanded="true" />
-            <element signature="e#39245#39246#0" expanded="false" />
-            <element signature="e#39295#39296#0" expanded="false" />
-            <element signature="e#50094#50095#0" expanded="false" />
-            <element signature="e#50151#50152#0" expanded="false" />
-            <element signature="e#51366#51367#0" expanded="false" />
-            <element signature="e#51423#51424#0" expanded="false" />
-            <element signature="e#53605#53606#0" expanded="false" />
-            <element signature="e#53662#53663#0" expanded="false" />
-            <element signature="e#103885#103886#0" expanded="false" />
-            <element signature="e#103955#103956#0" expanded="false" />
+            <element signature="e#0#81051#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -799,9 +748,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="189" column="59" lean-forward="true" selection-start-line="189" selection-start-column="59" selection-end-line="189" selection-end-column="59" />
-          <folding>
-            <element signature="e#0#15935#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -809,11 +755,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="230" column="6" lean-forward="false" selection-start-line="230" selection-start-column="6" selection-end-line="230" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#11624#0" expanded="false" />
-            <element signature="e#6707#6708#0" expanded="false" />
-            <element signature="e#6775#6776#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -821,7 +762,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-459">
           <caret line="86" column="0" lean-forward="true" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -829,100 +769,75 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="472">
           <caret line="72" column="7" lean-forward="true" selection-start-line="72" selection-start-column="7" selection-end-line="72" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#7005#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLong.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
-          <caret line="128" column="46" lean-forward="true" selection-start-line="128" selection-start-column="46" selection-end-line="128" selection-end-column="46" />
+        <state relative-caret-position="1479">
+          <caret line="128" column="46" lean-forward="false" selection-start-line="128" selection-start-column="46" selection-end-line="128" selection-end-column="46" />
           <folding>
-            <element signature="e#0#10676#0" expanded="true" />
+            <element signature="e#0#10676#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicIntegerArray.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+        <state relative-caret-position="391">
+          <caret line="58" column="30" lean-forward="false" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
           <folding>
-            <element signature="e#0#11075#0" expanded="true" />
+            <element signature="e#0#11075#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicReferenceArray.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="69" column="55" lean-forward="true" selection-start-line="69" selection-start-column="55" selection-end-line="69" selection-end-column="55" />
+        <state relative-caret-position="544">
+          <caret line="69" column="55" lean-forward="false" selection-start-line="69" selection-start-column="55" selection-end-line="69" selection-end-column="55" />
           <folding>
-            <element signature="e#0#10825#0" expanded="true" />
+            <element signature="e#0#10825#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/Lock.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="394" column="24" lean-forward="true" selection-start-line="394" selection-start-column="24" selection-end-line="394" selection-end-column="24" />
+        <state relative-caret-position="6137">
+          <caret line="394" column="24" lean-forward="false" selection-start-line="394" selection-start-column="24" selection-end-line="394" selection-end-column="24" />
           <folding>
-            <element signature="e#0#14895#0" expanded="true" />
+            <element signature="e#0#14895#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReadWriteLock.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="421">
-          <caret line="131" column="21" lean-forward="true" selection-start-line="131" selection-start-column="21" selection-end-line="131" selection-end-column="21" />
+        <state relative-caret-position="1666">
+          <caret line="131" column="21" lean-forward="false" selection-start-line="131" selection-start-column="21" selection-end-line="131" selection-end-column="21" />
           <folding>
-            <element signature="e#0#4966#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9080">
-          <caret line="849" column="26" lean-forward="true" selection-start-line="849" selection-start-column="26" selection-end-line="849" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#30301#0" expanded="true" />
-            <element signature="e#10306#10307#0" expanded="true" />
-            <element signature="e#10346#10347#0" expanded="true" />
+            <element signature="e#0#4966#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/atomic/AtomicLongArray.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="96" column="39" lean-forward="true" selection-start-line="96" selection-start-column="39" selection-end-line="96" selection-end-column="39" />
+        <state relative-caret-position="969">
+          <caret line="96" column="39" lean-forward="false" selection-start-line="96" selection-start-column="39" selection-end-line="96" selection-end-column="39" />
           <folding>
-            <element signature="e#0#11086#0" expanded="true" />
+            <element signature="e#0#11086#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReentrantReadWriteLock.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
+        <state relative-caret-position="27013">
           <caret line="1691" column="7" lean-forward="false" selection-start-line="1691" selection-start-column="7" selection-end-line="1691" selection-end-column="7" />
           <folding>
-            <element signature="e#0#64254#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/java/util/concurrent/CountDownLatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="166" column="9" lean-forward="false" selection-start-line="166" selection-start-column="9" selection-end-line="166" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#11874#0" expanded="true" />
+            <element signature="e#0#64254#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -930,9 +845,159 @@
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/Semaphore.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="275">
-          <caret line="172" column="6" lean-forward="false" selection-start-line="172" selection-start-column="6" selection-end-line="172" selection-end-column="6" />
+          <caret line="172" column="34" lean-forward="false" selection-start-line="172" selection-start-column="34" selection-end-line="172" selection-end-column="34" />
           <folding>
-            <element signature="e#0#29317#0" expanded="true" />
+            <element signature="e#0#29317#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/BlockingDeque.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="221" column="0" lean-forward="false" selection-start-line="221" selection-start-column="0" selection-end-line="221" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/BlockingQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="886">
+          <caret line="424" column="7" lean-forward="false" selection-start-line="424" selection-start-column="7" selection-end-line="424" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/CyclicBarrier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="140" column="3" lean-forward="true" selection-start-line="140" selection-start-column="3" selection-end-line="140" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#20103#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/ArrayBlockingQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="91" column="38" lean-forward="false" selection-start-line="91" selection-start-column="38" selection-end-line="91" selection-end-column="38" />
+          <folding>
+            <element signature="e#4363#4364#0" expanded="false" />
+            <element signature="e#4398#4399#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/LinkedBlockingQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1785">
+          <caret line="168" column="39" lean-forward="true" selection-start-line="168" selection-start-column="39" selection-end-line="168" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#34628#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/PriorityBlockingQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="314">
+          <caret line="115" column="30" lean-forward="true" selection-start-line="115" selection-start-column="30" selection-end-line="115" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#36029#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/SynchronousQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="731">
+          <caret line="370" column="25" lean-forward="true" selection-start-line="370" selection-start-column="25" selection-end-line="370" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#47289#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/RunnableFuture.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-508">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#897#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/Future.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="376">
+          <caret line="96" column="13" lean-forward="false" selection-start-line="96" selection-start-column="13" selection-end-line="96" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#6128#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/CountDownLatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="349">
+          <caret line="166" column="9" lean-forward="false" selection-start-line="166" selection-start-column="9" selection-end-line="166" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/ConcurrentHashMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="3099" column="33" lean-forward="false" selection-start-line="3099" selection-start-column="27" selection-end-line="3099" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#276547#0" expanded="true" />
+            <element signature="e#47344#47345#0" expanded="true" />
+            <element signature="e#47392#47393#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/ConcurrentMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="414" column="24" lean-forward="true" selection-start-line="414" selection-start-column="24" selection-end-line="414" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#19643#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="135" column="65" lean-forward="false" selection-start-line="135" selection-start-column="39" selection-end-line="135" selection-end-column="65" />
+          <folding>
+            <element signature="e#6989#6990#0" expanded="true" />
+            <element signature="e#7041#7042#0" expanded="true" />
+            <element signature="e#19442#19443#0" expanded="true" />
+            <element signature="e#19473#19474#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/FutureTask.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="365" column="8" lean-forward="false" selection-start-line="365" selection-start-column="8" selection-end-line="365" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#16859#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="3030" column="25" lean-forward="false" selection-start-line="3030" selection-start-column="25" selection-end-line="3030" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#121242#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -218,6 +218,8 @@ public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
      * @throws NullPointerException if the specified element is null
      * @throws IllegalArgumentException {@inheritDoc}
      */
+
+
     void addFirst(E e);
 
     /**
