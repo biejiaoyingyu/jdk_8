@@ -441,6 +441,9 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      *
      * @throws InterruptedException if the current thread is interrupted
      */
+    /**
+     * 方法上多了个 throws InterruptedException
+     */
     public void lockInterruptibly() throws InterruptedException {
         sync.acquireInterruptibly(1);
     }

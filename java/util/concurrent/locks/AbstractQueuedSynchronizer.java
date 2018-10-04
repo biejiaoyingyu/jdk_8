@@ -879,6 +879,9 @@ public abstract class AbstractQueuedSynchronizer
      * 注:在独占模式下，释放仅仅意味着如果有必要，唤醒头节点的
      * 后继节点。
      */
+
+    // 调用这个方法的时候，state == 0
+    // 这个方法先不要看所有的代码，按照思路往下到我写注释的地方，其他的之后还会仔细分析
     private void doReleaseShared() {
         /*
          * Ensure that a release propagates, even if there are other
@@ -902,24 +905,51 @@ public abstract class AbstractQueuedSynchronizer
         for (;;) {
             Node h = head;
             //判断同步等待队列是否为空
+
+            // 1. h == null: 说明阻塞队列为空
+            // 2. h == tail: 说明头结点可能是刚刚初始化的头节点，
+            //   或者是普通线程节点，但是此节点既然是头节点了，那么代表已经被唤醒了，阻塞队列没有其他节点了
+            // 所以这两种情况不需要进行唤醒后继节点
             if (h != null && h != tail) {
                 //如果不为空，获取头节点的等待状态。
                 int ws = h.waitStatus;
                 //如果等待状态是SIGNAL，说明其后继节点需要唤醒
                 //尝试修改等待状态
+
+                // t3 入队的时候，已经将头节点的 waitStatus 设置为 Node.SIGNAL（-1） 了
+                // t4 将头节点(此时是 t3)的 waitStatus 设置为 Node.SIGNAL（-1） 了
                 if (ws == Node.SIGNAL) {
                     //如果修改失败，重新循环检测
+                    // 这里 CAS 失败的场景请看下面的解读？？？详情见最后的注解
+
+
                     if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
                         continue;
                     // loop to recheck cases
                     //如果修改成功，唤醒头节点的后继节点
+
+                    // 就是这里，唤醒 head 的后继节点，也就是阻塞队列中的第一个节点
+                    // 在这里，也就是唤醒 t3-->然后t4
                     unparkSuccessor(h);
                 }
                 //如果等待状态是0，尝试将其(头节点)设置为PROPAGATE
+                // 这个 CAS 失败的场景是：执行到这里的时候，刚好有一个节点入队，入队会将这个 ws 设置为 -1
                 else if (ws == 0 && !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
                     continue;                // loop on failed CAS
                 // 如果设置失败，继续循环检测。
             }
+            // 如果到这里的时候，前面唤醒的线程已经占领了 head，那么再循环
+            // 否则，就是 head 没变，那么退出循环，
+            // 退出循环是不是意味着阻塞队列中的其他节点就不唤醒了？当然不是，唤醒的线程之后还是会调用这个方法的
+
+            /*h == head：说明头节点还没有被刚刚用 unparkSuccessor 唤醒的线程（这里可以理解为 t4）占有，此时 break 退出循环。
+            h != head：头节点被刚刚唤醒的线程（这里可以理解为 t4）占有，那么这里重新进入下一轮循环，唤醒下一个节点（这里是 t4 ）。
+            我们知道，等到 t4 被唤醒后，其实是会主动唤醒 t5、t6、t7...，那为什么这里要进行下一个循环来唤醒 t5 呢？我觉得是出于吞吐量的考虑。
+            满足上面的 2 的场景，那么我们就能知道为什么上面的 CAS 操作 compareAndSetWaitStatus(h, Node.SIGNAL, 0) 会失败了？
+            因为当前进行 for 循环的线程到这里的时候，可能刚刚唤醒的线程 t4 也刚刚好到这里了，那么就有可能 CAS 失败了。
+            for 循环第一轮的时候会唤醒 t4，t4 醒后会将自己设置为头节点，如果在 t4 设置头节点后，for 循环才跑到 if (h == head)，
+            那么此时会返回 false，for 循环会进入下一轮。t4 唤醒后也会进入到这个方法里面，那么 for 循环第二轮和 t4 就有可能在这个
+             CAS 相遇，那么就只会有一个成功了。*/
             if (h == head)                   // loop if head changed
                 break;
             // 如果过程中头节点没有发生变化，循环退出；否则需要继续检测。
@@ -966,10 +996,13 @@ public abstract class AbstractQueuedSynchronizer
          *  并且下一个节点处于共享模式或者为null。
          *
          */
+        // 下面说的是，唤醒当前 node 之后的节点，即 t3 已经醒了，马上唤醒 t4
+        // 类似的，如果 t4 后面还有 t5，那么 t4 醒了以后，马上将 t5 给唤醒了
         if (propagate > 0 || h == null || h.waitStatus < 0 ||
             (h = head) == null || h.waitStatus < 0) {
             Node s = node.next;
             if (s == null || s.isShared())
+                // 又是这个方法，只是现在的 head 已经不是原来的空节点了，是 t3 的节点了
                 doReleaseShared();
         }
     }
@@ -1141,6 +1174,9 @@ public abstract class AbstractQueuedSynchronizer
      *
      * @return {@code true} if interrupted
      */
+
+    //如果我们要取消一个线程的排队，我们需要在另外一个线程中对其进行中断。比如某线程调用 lock() 老久不返回，我想中断它。
+    //一旦对其进行中断，此线程会从 LockSupport.park(this) 中唤醒，然后 Thread.interrupted(); 返回 true。
     private final boolean parkAndCheckInterrupt() {
         /**
          * 阻塞当前线程。
@@ -1173,6 +1209,8 @@ public abstract class AbstractQueuedSynchronizer
     // 注意一下：如果acquireQueued(addWaiter(Node.EXCLUSIVE), arg))返回true的话，
     // 意味着上面这段代码将进入selfInterrupt()，所以正常情况下，下面应该返回false
     // 这个方法非常重要，应该说真正的线程挂起，然后被唤醒后去获取锁，都在这个方法里了
+
+    //首先，到这个方法的时候，节点一定是入队成功的。
     final boolean acquireQueued(final Node node, int arg) {
         boolean failed = true;
         try {
@@ -1240,6 +1278,14 @@ public abstract class AbstractQueuedSynchronizer
                 // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。剩下的读者自己想想吧。
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     //如果有中断，设置中断状态。
+
+                    /*我们发现一个问题，即使是中断唤醒了这个线程，也就只是设置了 interrupted = true 然后继续下一次循环。
+                    而且，由于 Thread.interrupted() 会清除中断状态，第二次进 parkAndCheckInterrupt 的时候，返回会是 false。
+                    所以，我们要看到，在这个方法中，interrupted 只是用来记录是否发生了中断，然后用于方法返回值，其他没有做任
+                    何相关事情。*/
+
+                    //所以说，lock() 方法处理中断的方法就是，你中断归中断，我抢锁还是照样抢锁，几乎没关系，只是我抢到锁了以后，
+                    //设置线程的中断状态而已，也不抛出任何异常出来。调用者获取锁后，可以去检查是否发生过中断，也可以不理会。
                     interrupted = true;
             }
         } finally {
@@ -1256,6 +1302,8 @@ public abstract class AbstractQueuedSynchronizer
      *       里其他方法的分析可以参考
      *
      */
+
+
     private void doAcquireInterruptibly(int arg)
         throws InterruptedException {
         final Node node = addWaiter(Node.EXCLUSIVE);
@@ -1269,11 +1317,15 @@ public abstract class AbstractQueuedSynchronizer
                     failed = false;
                     return;
                 }
+                // 就是这里了，一旦异常，马上结束这个方法，抛出异常。
+                // 这里不再只是标记这个方法的返回值代表中断状态
+                // 而是直接抛出异常，而且外层也不捕获，一直往外抛到 lockInterruptibly
                 if (shouldParkAfterFailedAcquire(p, node) &&
                     parkAndCheckInterrupt())
                     throw new InterruptedException();
             }
         } finally {
+            // 如果通过 InterruptedException 异常出去，那么 failed 就是 true 了
             if (failed)
                 cancelAcquire(node);
         }
@@ -1340,6 +1392,8 @@ public abstract class AbstractQueuedSynchronizer
                     int r = tryAcquireShared(arg);
                     if (r >= 0) {
                         //如果tryAcquireShared方法执行成功，执行setHeadAndPropagate（）
+
+                        //唤醒线程的时候会进入这里-->t3 会进到 setHeadAndPropagate(node, r) 这个方法，先把 head 给占了，然后唤醒队列中其他的线程
                         setHeadAndPropagate(node, r);
                         //p节点被移除，置空next引用，帮助GC
                         p.next = null; // help GC
@@ -1369,15 +1423,19 @@ public abstract class AbstractQueuedSynchronizer
      * @param arg the acquire argument
      * 和doAcquireShared方法基本一致，唯一区别就是没有传递线程中断状态，而是直接抛出异常
      *
+     * 从方法名我们就可以看出，这个方法是获取共享锁，并且此方法是可中断的（中断的时候抛出 InterruptedException 退出这个方法）。
+     *
      */
     private void doAcquireSharedInterruptibly(int arg)
         throws InterruptedException {
+        // 1. 入队
         final Node node = addWaiter(Node.SHARED);
         boolean failed = true;
         try {
             for (;;) {
                 final Node p = node.predecessor();
                 if (p == head) {
+                    // 同上，只要 state 不等于 0，那么这个方法返回 -1
                     int r = tryAcquireShared(arg);
                     if (r >= 0) {
                         setHeadAndPropagate(node, r);
@@ -1386,6 +1444,8 @@ public abstract class AbstractQueuedSynchronizer
                         return;
                     }
                 }
+                //进入parkAndCheckInterrupt 的时候，t3 挂起。
+                //我们再分析 t4 入队，t4 会将前驱节点 t3 所在节点的 waitStatus 设置为 -1，t4 入队后，应该是这样的
                 if (shouldParkAfterFailedAcquire(p, node) &&
                     parkAndCheckInterrupt())
                     throw new InterruptedException();
@@ -1825,6 +1885,15 @@ public abstract class AbstractQueuedSynchronizer
         if (Thread.interrupted())
             throw new InterruptedException();
         //首先调用tryAcquireShared请求方法，请求失败的话，继续调用doAcquireSharedInterruptibly方法。
+
+
+        //线程调用 await 的时候，state 都大于 0。
+        // 也就是说，这个 if 返回 true，然后往里看
+
+        // 只有当 state == 0 的时候，这个方法才会返回 1，否者返回-1
+        //        protected int tryAcquireShared(int acquires) {
+        //            return (getState() == 0) ? 1 : -1;
+        //        }
         if (tryAcquireShared(arg) < 0)
             doAcquireSharedInterruptibly(arg);
     }
@@ -1870,7 +1939,10 @@ public abstract class AbstractQueuedSynchronizer
      *
      */
     public final boolean releaseShared(int arg) {
+        // 只有当 state 减为 0 的时候，tryReleaseShared 才返回 true
+        // 否则只是简单的 state = state - 1 那么 countDown 方法就结束了
         if (tryReleaseShared(arg)) {
+            // 唤醒 await 的线程
             doReleaseShared();
             return true;
         }

@@ -153,6 +153,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * 2.当第n个使用方调用await时，栅栏开放(内部计数减1后等于0)，会唤醒所有在await方法上等待着的使
  * 用方(线程)，大家一起通过栅栏，然后重置栅栏(内部计数又变成n)，栅栏变成新建后的状态，可以再次使用。
  *
+ * CyclicBarrier 的源码实现和 CountDownLatch 大相径庭，CountDownLatch 基于 AQS 的共享模式的
+ * 使用，而 CyclicBarrier 基于 Condition 来实现。
+ *
  */
 public class CyclicBarrier {
     /**
@@ -174,6 +177,8 @@ public class CyclicBarrier {
      * 可用的，其他的要么被打破，要么开放。如果一个栅栏已经被打破。且没有
      * 后续的重置动作，那么可以不存在可用的generation。
      */
+
+    // 我们说了，CyclicBarrier 是可以重复使用的，我们把每次从开始使用到穿过栅栏当做"一代"
     private static class Generation {
         boolean broken = false;
     }
@@ -183,14 +188,18 @@ public class CyclicBarrier {
     private final ReentrantLock lock = new ReentrantLock();
     /** Condition to wait on until tripped */
     /** 栅栏开放的条件 */
+    // CyclicBarrier 是基于 Condition 的
+    // Condition 是“条件”的意思，CyclicBarrier 的等待线程通过 barrier 的“条件”是大家都到了栅栏上
     private final Condition trip = lock.newCondition();
     /** The number of parties */
     /** 表示当前使用栅栏的使用方(线程)数量 */
+    // 参与的线程数
     private final int parties;
     /* The command to run when tripped */
-     /* 当栅栏开放时，要使用的命令(动作) */
+    // 如果设置了这个，代表越过栅栏之前，要执行相应的操作
     private final Runnable barrierCommand;
     /** The current generation */
+    // 当前所处的“代”
     private Generation generation = new Generation();
 
     /**
@@ -204,6 +213,8 @@ public class CyclicBarrier {
      * parties递减为0。当新建generation(栅栏开放)或者栅栏被打破
      * 时，重置为parties。
      */
+    // 还没有到栅栏的线程数，这个值初始为 parties，然后递减
+    // 还没有到栅栏的线程数 = parties - 已经到栅栏的数量
     private int count;
 
     /**

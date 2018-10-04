@@ -172,6 +172,20 @@ public class CountDownLatch {
      * Uses AQS state to represent count.
      *
      * CountDownLatch内部同步器，利用AQS的state来表示count。
+     *
+     * // 老套路了，内部封装一个 Sync 类继承自 AQS
+     *
+     * 先分析套路：AQS 里面的 state 是一个整数值，这边用一个 int count
+     * 参数其实初始化就是设置了这个值，所有调用了 await 方法的等待线程会挂起，
+     * 然后有其他一些线程会做 state = state - 1 操作，当 state 减到 0 的同时，
+     * 那个线程会负责唤醒调用了 await 方法的所有线程。都是套路啊，只是 Doug Lea
+     * 的套路很深，代码很巧妙，不然我们也没有要分析源码的必要。
+     *
+     * 一个是 countDown() 方法，另一个是 await() 方法。countDown() 方法每次调
+     * 用都会将 state 减 1，直到 state 的值为 0；而 await 是一个阻塞方法，当
+     * state 减为 0 的时候，await 方法才会返回。await 可以被多个线程调用，读者
+     * 这个时候脑子里要有个图：所有调用了 await 方法的线程阻塞在 AQS 的阻塞队列中，
+     * 等待条件满足（state == 0），将线程从队列中一个个唤醒过来。
      */
     private static final class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 4982264981922014374L;
@@ -187,6 +201,8 @@ public class CountDownLatch {
         //如果当前count为0，那么方法返回1，
         //按照之前对AQS的分析，请求成功，并唤醒同步队列里下一个共享模式的线程(这里都是共享模式的)。
         //如果当前count不为0，那么方法返回-1，请求失败，当前线程最终会被阻塞(之前会不止一次调用tryAcquireShared)。
+
+        // 只有当 state == 0 的时候，这个方法才会返回 1，否者返回-1
         protected int tryAcquireShared(int acquires) {
             return (getState() == 0) ? 1 : -1;
         }
@@ -195,6 +211,8 @@ public class CountDownLatch {
         // 如果count不为0，递减count。
         // 最后如果count为0，说明关闭的闭锁打开了，那么返回true，后面会唤醒等待队列中的线程。
         // 如果count不为0，说明闭锁还是处于关闭状态，返回false。
+
+        // 这个方法很简单，用自旋的方法实现 state 减 1
         protected boolean tryReleaseShared(int releases) {
             // Decrement count; signal when transition to zero
             for (;;) {
