@@ -108,15 +108,15 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
     final Object[] items;
 
     /** items index for next take, poll, peek or remove */
-    /** 取元素使用的下标 */
+    // 下一次读取操作的位置
     int takeIndex;
 
     /** items index for next put, offer, or add */
-    /** 存元素使用的下标 */
+    // 下一次写入操作的位置
     int putIndex;
 
     /** Number of elements in the queue */
-    /** 队列中元素数量 */
+    // 队列中的元素数量
     int count;
 
     /*

@@ -171,6 +171,13 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  *    醒来竞争许可。
  *    3.公平模式下，如果有线程在acquire()处等待，新来的请求线程会排在这些等待线程后面；非公平模式下，
  *    新来的请求线程可能会插队，比在acquire()处等待的线程提前申请到许可
+ *
+ *
+ *    Semaphore 其实也是 AQS 中共享锁的使用，因为每个线程共享一个池嘛。
+
+ *      创建 Semaphore 实例的时候，需要一个参数 permits，这个基本上可以确定是设置给 AQS 的 state 的，
+ *      然后每个线程调用 acquire 的时候，执行 state = state - 1，release 的时候执行 state = state + 1，
+ *      当然，acquire 的时候，如果 state = 0，说明没有资源了，需要等待其他线程 release。
  */
 public class Semaphore implements java.io.Serializable {
     private static final long serialVersionUID = -3222578661600680210L;
@@ -267,9 +274,14 @@ public class Semaphore implements java.io.Serializable {
             super(permits);
         }
 
+        /**
+         * 由于 tryAcquireShared(arg) 返回小于 0 的时候，说明 state 已经小于 0 了（没资源了），
+         * 此时 acquire 不能立马拿到资源，需要进入到阻塞队列等待
+         */
         protected int tryAcquireShared(int acquires) {
             for (;;) {
                 //公平版的请求，需要先检查同步队列里有没有比当前线程更早的线程在等待
+                // 区别就在于是不是会先判断是否有线程在排队，然后才进行 CAS 减操作
                 if (hasQueuedPredecessors())
                     return -1;
                 int available = getState();

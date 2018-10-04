@@ -84,6 +84,8 @@ import java.util.function.Consumer;
  * (在并发程序中，基于链表实现的队列和基于数组实现的队列相比，往往具有更高的吞吐量，但性能稍差一些)
  *
  * 首先可见，内部为单向链表；其次，内部为两把锁：存锁和取锁，并分别关联一个条件(是一种双锁队列)。
+ * 为什么会有两把锁？而不下昂ArrayBlockingQueue的一把锁？
+ *
  */
 public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         implements BlockingQueue<E>, java.io.Serializable {
@@ -142,40 +144,58 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /** The capacity bound, or Integer.MAX_VALUE if none */
+    // 队列容量
     private final int capacity;
 
     /** Current number of elements */
     //这里的count为原子量，避免了一些使用count的地方需要加两把锁
+    // 队列中的元素数量
     private final AtomicInteger count = new AtomicInteger();
 
     /**
      * Head of linked list.
      * Invariant: head.item == null
      */
+    // 队头
     transient Node<E> head;
 
     /**
      * Tail of linked list.
      * Invariant: last.next == null
      */
+    // 队尾
     private transient Node<E> last;
 
     /** Lock held by take, poll, etc */
+    // take, poll, peek 等读操作的方法需要获取到这个锁
     private final ReentrantLock takeLock = new ReentrantLock();
 
+    /**
+     * takeLock 和 notEmpty 怎么搭配：如果要获取（take）一个元素，
+     * 需要获取 takeLock 锁，但是获取了锁还不够，如果队列此时为空，
+     * 还需要队列不为空（notEmpty）这个条件（Condition）。
+     */
     /** Wait queue for waiting takes */
+    // 如果读操作的时候队列是空的，那么等待 notEmpty 条件
     private final Condition notEmpty = takeLock.newCondition();
 
     /** Lock held by put, offer, etc */
+    // put, offer 等写操作的方法需要获取到这个锁
     private final ReentrantLock putLock = new ReentrantLock();
-
+    /**
+     * putLock 需要和 notFull 搭配：如果要插入（put）一个元素，
+     * 需要获取 putLock 锁，但是获取了锁还不够，如果队列此时已满，
+     * 还需要队列不是满的（notFull）这个条件（Condition）。
+     */
     /** Wait queue for waiting puts */
+    // 如果写操作的时候队列是满的，那么等待 notFull 条件
     private final Condition notFull = putLock.newCondition();
 
     /**
      * Signals a waiting take. Called only from put/offer (which do not
      * otherwise ordinarily lock takeLock.)
      */
+    // 元素入队后，如果需要，调用这个方法唤醒读线程来读
     private void signalNotEmpty() {
         final ReentrantLock takeLock = this.takeLock;
         takeLock.lock();
@@ -189,6 +209,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     /**
      * Signals a waiting put. Called only from take/poll.
      */
+    // 元素出队后，如果需要，调用这个方法唤醒写线程来写
     private void signalNotFull() {
         final ReentrantLock putLock = this.putLock;
         putLock.lock();
@@ -204,6 +225,9 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
      *
      * @param node the node
      */
+
+    // 入队的代码非常简单，就是将 last 属性指向这个新元素，并且让原队尾的 next 指向这个元素
+    // 这里入队没有并发问题，因为只有获取到 putLock 独占锁以后，才可以进行此操作
     private void enqueue(Node<E> node) {
         // assert putLock.isHeldByCurrentThread();
         // assert last.next == null;
@@ -214,13 +238,18 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
      * Removes a node from head of queue.
      *
      * @return the node
+     *
+     *
      */
+    // 取队头，出队
     private E dequeue() {
         // assert takeLock.isHeldByCurrentThread();
         // assert head.item == null;
+        // 之前说了，头结点是空的
         Node<E> h = head;
         Node<E> first = h.next;
         h.next = h; // help GC
+        // 设置这个为新的头结点
         head = first;
         E x = first.item;
         first.item = null;
@@ -254,7 +283,10 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
     /**
      * Creates a {@code LinkedBlockingQueue} with a capacity of
      * {@link Integer#MAX_VALUE}.
+     *
+     *
      */
+    // 传说中的无界队列
     public LinkedBlockingQueue() {
         this(Integer.MAX_VALUE);
     }
@@ -266,7 +298,11 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
      * @throws IllegalArgumentException if {@code capacity} is not greater
      *         than zero
      */
+    // 传说中的有界队列
+//    注意，这里会初始化一个空的头结点，那么第一个元素入队的时候，
+//    队列中就会有两个元素。读取元素时，也总是获取头节点后面的一个节点。count 的计数值不包括这个头节点。
     public LinkedBlockingQueue(int capacity) {
+
         if (capacity <= 0) throw new IllegalArgumentException();
         this.capacity = capacity;
         last = head = new Node<E>(null);
@@ -341,10 +377,13 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         if (e == null) throw new NullPointerException();
         // Note: convention in all put/take/etc is to preset local var
         // holding count negative to indicate failure unless set.
+
+        // 如果你纠结这里为什么是 -1，可以看看 offer 方法。这就是个标识成功、失败的标志而已。
         int c = -1;
         Node<E> node = new Node<E>(e);
         final ReentrantLock putLock = this.putLock;
         final AtomicInteger count = this.count;
+        // 必须要获取到 putLock 才可以进行插入操作
         putLock.lockInterruptibly();
         try {
             /*
@@ -355,22 +394,31 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
              * signalled if it ever changes from capacity. Similarly
              * for all other uses of count in other wait guards.
              */
+            // 如果队列满，等待 notFull 的条件满足。
             while (count.get() == capacity) {
                 notFull.await();
             }
+            // 入队
             enqueue(node);
+            // count 原子加 1，c 还是加 1 前的值
             c = count.getAndIncrement();
              /*
              * 注意这里的处理：和单锁队列不同，count为原子量，不需要锁保护。
              * put过程中可能有其他线程执行多次get,所以这里需要判断一下当前
              * 如果还有剩余容量，那么继续唤醒notFull条件上等待的线程。
              */
+            // 如果这个元素入队后，还有至少一个槽可以使用，调用 notFull.signal() 唤醒等待线程。
+            // 哪些线程会等待在 notFull 这个 Condition 上呢？
             if (c + 1 < capacity)
                 notFull.signal();
         } finally {
+            // 入队后，释放掉 putLock
             putLock.unlock();
         }
         //如果count又0变为1，说明在队列是空的情况下插入了1个元素，唤醒notNull条件上等待的线程。
+
+        // 如果 c == 0，那么代表队列在这个元素入队前是空的（不包括head空节点），
+        // 那么所有的读线程都在等待 notEmpty 这个条件，等待唤醒，这里做一次唤醒操作
         if (c == 0)
             signalNotEmpty();
     }
@@ -451,18 +499,26 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         int c = -1;
         final AtomicInteger count = this.count;
         final ReentrantLock takeLock = this.takeLock;
+        // 首先，需要获取到 takeLock 才能进行出队操作
         takeLock.lockInterruptibly();
         try {
+            // 如果队列为空，等待 notEmpty 这个条件满足再继续执行
             while (count.get() == 0) {
                 notEmpty.await();
             }
+            // 出队
             x = dequeue();
+            // count 进行原子减 1
             c = count.getAndDecrement();
+            // 如果这次出队后，队列中至少还有一个元素，那么调用 notEmpty.signal() 唤醒其他的读线程c-1>0
             if (c > 1)
                 notEmpty.signal();
         } finally {
+            // 出队后释放掉 takeLock
             takeLock.unlock();
         }
+        // 如果 c == capacity，那么说明在这个 take 方法发生的时候，队列是满的
+        // 既然出队了一个，那么意味着队列不满了，唤醒写线程去写
         if (c == capacity)
             signalNotFull();
         return x;

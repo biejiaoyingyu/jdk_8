@@ -225,15 +225,18 @@ public class CyclicBarrier {
     /**
      * 更新栅栏状态，唤醒所有在栅栏处等待的线程。
      * 这个方法只有在持有锁的情况下被调用。
+     *
+     * 开启新一代栅栏
      */
+    // 开启新的一代，当最后一个线程到达栅栏上的时候，调用这个方法来唤醒其他线程，同时初始化“下一代”
     private void nextGeneration() {
         // signal completion of last generation
-        //唤醒所有在栅栏处等待的线程。
+        // 首先，需要唤醒所有的在栅栏上等待的线程
         trip.signalAll();
         // set up next generation
-        //重置count。
+        // 更新 count 的值
         count = parties;
-        //产生新的generation。
+        // 重新生成“新一代”
         generation = new Generation();
     }
 
@@ -244,13 +247,21 @@ public class CyclicBarrier {
     /**
      * 设置当前栅栏generation状态为打破状态，并唤醒栅栏处的等待线程。
      * 这个方法只有在持有锁的情况下被调用。
+     *
+     * 打破一个栅栏
+     *
+     * 什么时候栅栏会被打破，总结如下：
+
+     * 1.中断，我们说了，如果某个等待的线程发生了中断，那么会打破栅栏，同时抛出 InterruptedException 异常；
+     * 2.超时，打破栅栏，同时抛出 TimeoutException 异常；
+     * 3.指定执行的操作抛出了异常，这个我们前面也说过。
      */
     private void breakBarrier() {
-        //设置"打破"状态。
+        // 设置状态 broken 为 true
         generation.broken = true;
-        //重置count。
+        // 重置 count 为初始值 parties
         count = parties;
-        //唤醒所有在栅栏处等待的线程。
+        // 唤醒所有已经在等待的线程
         trip.signalAll();
     }
 
@@ -265,6 +276,8 @@ public class CyclicBarrier {
         throws InterruptedException, BrokenBarrierException,
                TimeoutException {
         final ReentrantLock lock = this.lock;
+        // 先要获取到锁，然后在 finally 中要记得释放锁
+        // 如果记得 Condition 部分的话，我们知道 condition 的 await 会释放锁，signal 的时候需要重新获取锁
         lock.lock();
         try {
             //获取当前的generation实例。
@@ -278,21 +291,28 @@ public class CyclicBarrier {
                 breakBarrier();
                 throw new InterruptedException();
             }
-            //计算当前到达线程的下标。
+            // 计算当前到达线程的下标。
+            // index 是这个 await 方法的返回值
+            // 注意到这里，这个是从 count 递减后得到的值
             int index = --count;
             //下标为0表示当前线程为最后一个使用栅栏的线程。
+            // 如果等于 0，说明所有的线程都到栅栏上了，准备通过
             if (index == 0) {  // tripped // 栅栏开放。
                 boolean ranAction = false;
                 try {
+                    // 如果在初始化的时候，指定了通过栅栏前需要执行的操作，在这里会得到执行
                     final Runnable command = barrierCommand;
                     if (command != null) //如果有栅栏命令，执行栅栏命令。
                         command.run(); //看来栅栏的命令是由最后一个到达栅栏的线程执行。
+                    // 如果 ranAction 为 true，说明执行 command.run() 的时候，没有发生异常退出的情况
                     ranAction = true;
                     //产生新的generation。
+                    // 唤醒等待的线程，然后开启新的一代
                     nextGeneration();
                     return 0;
                 } finally {
-                    //如果栅栏命令未执行，打破栅栏。
+                    // 进到这里，说明执行指定操作的时候，发生了异常，那么需要打破栅栏
+                    // 之前我们说了，打破栅栏意味着唤醒所有等待的线程，设置 broken 为 true，重置 count 为 parties
                     if (!ranAction)
                         breakBarrier();
                 }
@@ -300,16 +320,23 @@ public class CyclicBarrier {
 
             // loop until tripped, broken, interrupted, or timed out
             // 等待中的主循环，直到栅栏开放、栅栏被打破、线程被打断或者超时时退出。
+
+            // 如果是最后一个线程调用 await，那么上面就返回了
+            // 下面的操作是给那些不是最后一个到达栅栏的线程执行的
             for (;;) {
                 try {
+                    // 如果带有超时机制，调用带超时的 Condition 的 await 方法等待，直到最后一个线程调用 await
                     if (!timed)
                         trip.await();
                     else if (nanos > 0L)
                         nanos = trip.awaitNanos(nanos);
                 } catch (InterruptedException ie) {
                     //如果出于当前generation 且generation状态为未打破，那么打破栅栏。
+                    // 如果到这里，说明等待的线程在 await（是 Condition 的 await）的时候被中断
                     if (g == generation && ! g.broken) {
+                        // 打破栅栏
                         breakBarrier();
+                        // 打破栅栏后，重新抛出这个 InterruptedException 异常给外层调用的方法
                         throw ie;
                     } else {
                         // We're about to finish waiting even if we had not
@@ -318,13 +345,26 @@ public class CyclicBarrier {
 
                         // 如果没被中断的话，我们即将完成等待。
                         // 所以这个中断被算作下一次执行的中断。
+
+                        // 到这里，说明 g != generation, 说明新的一代已经产生，即最后一个线程 await 执行完成，
+                        // 那么此时没有必要再抛出 InterruptedException 异常，记录下来这个中断信息即可
+                        // 或者是栅栏已经被打破了，那么也不应该抛出 InterruptedException 异常，
+                        // 而是之后抛出 BrokenBarrierException 异常
+
+                        //下面这句代码不起任何作用，仅仅是一个标记，表明，这个线程被中断过，如果要处理，需要操作者手动去处理
                         Thread.currentThread().interrupt();
                     }
                 }
-
+                // 唤醒后，检查栅栏是否是“破的”
                 if (g.broken)
                     throw new BrokenBarrierException();
-                //如果generation改变了，说明之前的栅栏已经开放，返回index
+                // 如果generation改变了，说明之前的栅栏已经开放，返回index
+                // 这个 for 循环除了异常，就是要从这里退出了
+                // 我们要清楚，最后一个线程在执行完指定任务(如果有的话)，会调用 nextGeneration 来开启一个新的代
+                // 然后释放掉锁，其他线程从 Condition 的 await 方法中得到锁并返回，然后到这里的时候，其实就会满足 g != generation 的
+                // 那什么时候不满足呢？barrierCommand 执行过程中抛出了异常，那么会执行打破栅栏操作，
+                // 设置 broken 为true，然后唤醒这些线程。这些线程会从上面的 if (g.broken) 这个分支抛 BrokenBarrierException 异常返回
+                // 当然，还有最后一种可能，那就是 await 超时，此种情况不会从上面的 if 分支异常返回，也不会从这里返回，会执行后面的代码
                 if (g != generation)
                     return index;
                 //如果超时，打破栅栏，并返回超时异常。
@@ -553,6 +593,12 @@ public class CyclicBarrier {
      * carry out; threads need to re-synchronize in some other way,
      * and choose one to perform the reset.  It may be preferable to
      * instead create a new barrier for subsequent use.
+     *
+     * 我们设想一下，如果初始化时，指定了线程 parties = 4，前面有 3 个线程调用了 await 等待，
+     * 在第 4 个线程调用 await 之前，我们调用 reset 方法，那么会发生什么？
+
+     * 首先，打破栅栏，那意味着所有等待的线程（3个等待的线程）会唤醒，await 方法会通过抛出
+     * BrokenBarrierException 异常返回。然后开启新的一代，重置了 count 和 generation，相当于一切归零了。
      */
     public void reset() {
         final ReentrantLock lock = this.lock;
@@ -570,6 +616,8 @@ public class CyclicBarrier {
      * This method is primarily useful for debugging and assertions.
      *
      * @return the number of parties currently blocked in {@link #await}
+     *
+     * 得到有多少个线程到了栅栏上，处于等待状态：
      */
     public int getNumberWaiting() {
         final ReentrantLock lock = this.lock;
