@@ -125,6 +125,7 @@ package java.util.concurrent;
  * @since 1.5
  * @author Doug Lea
  */
+//Executor 位于最顶层，也是最简单的，就一个 execute(Runnable runnable) 接口方法定义
 public interface Executor {
 
     /**
@@ -137,5 +138,7 @@ public interface Executor {
      * accepted for execution
      * @throws NullPointerException if command is null
      */
+
+    //我们可以看到 Executor 接口非常简单，就一个 void execute(Runnable command) 方法，代表提交一个任务
     void execute(Runnable command);
 }

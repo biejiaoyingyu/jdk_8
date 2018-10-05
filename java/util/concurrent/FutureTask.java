@@ -68,6 +68,10 @@ import java.util.concurrent.locks.LockSupport;
  *
  *
  *   RunnableFuture又扩展了Runnable和Future
+ *
+ * FutureTask 通过 RunnableFuture 间接实现了 Runnable 接口，
+ * 所以每个 Runnable 通常都先包装成 FutureTask？感觉写反了！！！
+ * 然后调用 executor.execute(Runnable command) 将其提交给线程池
  */
 public class FutureTask<V> implements RunnableFuture<V> {
     /*

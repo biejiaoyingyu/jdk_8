@@ -53,6 +53,9 @@ package java.util.concurrent;
  * @since 1.5
  * @author Doug Lea
  * @param <V> the result type of method {@code call}
+ *
+ *           Callable 也是因为线程池的需要，所以才有了这个接口。它和 Runnable 的区别在于 run() 没有返回值，
+ *           而 Callable 的 call() 方法有返回值，同时，如果运行出现异常，call() 方法会抛出异常。
  */
 @FunctionalInterface
 public interface Callable<V> {
