@@ -115,6 +115,11 @@ package java.util.concurrent.locks;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ *
+ * ReentrantLock 实现了Lock接口
+ * ReentrantReadWriteLock 实现了ReadWriteLock
+ * 但是  Lock 和 ReadWriteLock没有任何关系
  */
 public interface ReadWriteLock {
     /**
