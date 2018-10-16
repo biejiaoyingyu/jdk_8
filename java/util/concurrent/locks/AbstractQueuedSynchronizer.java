@@ -505,6 +505,7 @@ public abstract class AbstractQueuedSynchronizer
          */
 
         /**
+         * ????
          * 指向当前节点的前驱节点，用于检测等待状态。这个域在入队时赋值，出队时置空。
          * 而且，在取消前驱节点的过程中，可以缩短寻找非取消状态节点的过程。由于头节点
          * 永远不会取消(一个节点只有请求成功才会变成头节点，一个被取消的节点永远不可
@@ -527,11 +528,12 @@ public abstract class AbstractQueuedSynchronizer
          */
 
         /**
+         * ????
          * 指向当前节点的后继节点，释放(控制权)时会唤醒该节点。这个域在入队时赋值，在跳过
          * 取消状态节点时进行调整，在出队时置空。入队操作在完成之前并不会对一个前驱节点的
-         * next域赋值，所以一个节点的next域为null并不能说明这个节点在队列尾部。然而，如果
-         * next域为null，我们可以从尾节点通过前驱节点往前扫描来做双重检测。取消状态节点的
-         * next域指向自身，这样可以简化isOnSyncQueue的实现。
+         * next域赋值(因为有多线程么？)，所以一个节点的next域为null并不能说明这个节点在队列尾部。然而，如果
+         * next域为null，我们可以从尾节点（？？？这里有点问题）通过前驱节点往前扫描来做双重检测。取消状态节点的
+         * next域指向自身(??????)，这样可以简化isOnSyncQueue的实现。
          */
         volatile Node next;
 
@@ -702,8 +704,8 @@ public abstract class AbstractQueuedSynchronizer
                  * 的结果就是头尾节点都指向一个哑(dummy)节点。
                  */
                 // 初始化head节点
-                // 细心的读者会知道原来head和tail初始化的时候都是null，反正我不细心
-                // 还是一步CAS，你懂的，现在可能是很多线程同时进来呢
+                // 原来head和tail初始化的时候都是null，反正我不细心
+                // 还是一步CAS，你懂的，现在可能是很多线程同时进来呢，初始化的头结点是新的节点，和线程无关
                 if (compareAndSetHead(new Node()))
 
                     // 给后面用：这个时候head节点的waitStatus==0, 看new Node()构造方法就知道了
@@ -725,7 +727,6 @@ public abstract class AbstractQueuedSynchronizer
                 //所以一个节点为尾节点，可以保证prev一定不为null，但无法保证其prev的next不为null。
                 //所以后续的一些方法内会看到很多对同步等待队列的反向遍历。??为什么呢？
                 //尝试将当前节点设置为同步等待队列的尾节点。???如果再不成功怎么办？--->是无限循环的尴尬
-
 
                 // 下面几行，和上一个方法 addWaiter 是一样的，
                 // 只是这个套在无限循环里，反正就是将当前线程排到队尾，有线程竞争的话排不上重复排
@@ -764,11 +765,13 @@ public abstract class AbstractQueuedSynchronizer
          */
         // 以下几行代码想把当前node加到链表的最后面去，也就是进到阻塞队列的最后
         // tail!=null => 队列不为空(tail==head的时候，其实队列是空的，不过不管这个吧)
+
         Node pred = tail;
         if (pred != null) {
             /**
              * 如果同步等待队列尾节点不为null,将当前(线程的)Node链接到未接到尾节点
              */
+            //这里有个问题，如果尾节点刚好执行完，要出队列怎么办？？？？
             // 设置自己的前驱 为当前的队尾节点
             node.prev = pred;
             /**
@@ -793,10 +796,8 @@ public abstract class AbstractQueuedSynchronizer
         /**
          *  如果同步等待队列尾节点为null，或者快速入队过程中设置尾节点失败，进行正常的入队过程，调用enq方法。
          */
-
         // 仔细看看上面的代码，如果会到这里，
         // 说明 pred==null(队列是空的) 或者 CAS失败(有线程在竞争入队)
-        // 读者一定要跟上思路，如果没有跟上，建议先不要往下读了，往回仔细看，否则会浪费时间的
         enq(node);
         return node;
     }
@@ -1102,11 +1103,10 @@ public abstract class AbstractQueuedSynchronizer
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
 
         /**
-         * 获取当前节点的前驱节点的等待状态。
+         * 获取当前节点的前驱节点的等待状态，如果status>0表明这个节点被取消了
          */
         int ws = pred.waitStatus;
         /**
-         *
          * 如果当前节点的前驱节点的状态为SIGNAL，说明当前节点已经声明了需要唤醒，
          * 所以可以阻塞当前节点了，直接返回true。
          * 一个节点在其被阻塞之前需要线程"声明"一下其需要唤醒(就是将其前驱节点
@@ -1114,6 +1114,7 @@ public abstract class AbstractQueuedSynchronizer
          */
 
         // 前驱节点的 waitStatus == -1 ，说明前驱节点状态正常，当前线程需要挂起，直接可以返回true
+        // 第一次进来一般不会为-1，因为前驱节点的状态是后继节点设置的，但是调用当前方法的方法是循环调用的，后面会为-1
         if (ws == Node.SIGNAL)
             /*
              * This node has already set status asking a release
@@ -1126,7 +1127,7 @@ public abstract class AbstractQueuedSynchronizer
          * 如果当前节点的前驱节点是取消状态，那么需要跳过这些(取消状态)前驱节点
          * 然后重试。
          */
-         */
+
         // 前驱节点 waitStatus大于0 ，之前说过，大于0 说明前驱节点取消了排队。这里需要知道这点：
         // 进入阻塞队列排队的线程会被挂起，而唤醒的操作是由前驱节点完成的。
         // 所以下面这块代码说的是将当前节点的prev指向waitStatus<=0的节点，
@@ -1148,7 +1149,6 @@ public abstract class AbstractQueuedSynchronizer
              * retry to make sure it cannot acquire before parking.
              */
             /**
-             *
              * 这里等待状态一定是0或者PROPAGATE。这里将当前节点的前驱节点(非取消状态)的
              * 等待状态设置为SIGNAL。来声明需要一个(唤醒)信号。接下来方法会返回false，
              * 还会继续尝试一下请求，以确保在阻塞之前确实无法请求成功。
@@ -1228,9 +1228,9 @@ public abstract class AbstractQueuedSynchronizer
                 // 注意，阻塞队列不包含head节点，head一般指的是占有锁的线程，head后面的才称为阻塞队列
                 // 所以当前节点可以去试抢一下锁
                 // 这里我们说一下，为什么可以去试试：
-                // 首先，它是队头，这个是第一个条件，其次，当前的head有可能是刚刚初始化的node，
+                // 首先，它是阻塞队头，这个是第一个条件，其次，当前的head有可能是刚刚初始化的新的node，
                 // enq(node) 方法里面有提到，head是延时初始化的，而且new Node()的时候没有设置任何线程
-                // 也就是说，当前的head不属于任何一个线程，所以作为队头，可以去试一试，
+                // 也就是说，当前的head不属于任何一个线程，所以作为阻塞队头，可以去试一试，
                 // tryAcquire已经分析过了, 忘记了请往前看一下，就是简单用CAS试操作一下state
                 if (p == head && tryAcquire(arg)) {
                     /**
@@ -1243,7 +1243,8 @@ public abstract class AbstractQueuedSynchronizer
                     p.next = null; // help GC
                     //设置请求标记为成功
                     failed = false;
-                    //传递中断状态，并返回。
+                    //传递中断状态，并返回。（为什么要传递中断状态？？就是将中断状态保持一下么？）
+                    //循环唯一的出口
                     return interrupted;
                 }
                 //如果p节点不是头节点，或者tryAcquire返回false，说明请求失败。
@@ -1272,7 +1273,9 @@ public abstract class AbstractQueuedSynchronizer
 
                 // 2. 接下来说说如果shouldParkAfterFailedAcquire(p, node)返回false的情况
 
-                // 仔细看shouldParkAfterFailedAcquire(p, node)，我们可以发现，其实第一次进来的时候，一般都不会返回true的，原因很简单，前驱节点的waitStatus=-1是依赖于后继节点设置的。也就是说，我都还没给前驱设置-1呢，怎么可能是true呢，但是要看到，这个方法是套在循环里的，所以第二次进来的时候状态就是-1了。
+                // 仔细看shouldParkAfterFailedAcquire(p, node)，我们可以发现，其实第一次进来的时候，一般都不会返回true的，
+                // 原因很简单，前驱节点的waitStatus=-1是依赖于后继节点设置的。也就是说，我都还没给前驱设置-1呢，怎么可能是true呢，
+                // 但是要看到，这个方法是套在循环里的，所以第二次进来的时候状态就是-1了。
 
                 // 解释下为什么shouldParkAfterFailedAcquire(p, node)返回false的时候不直接挂起线程：
                 // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。剩下的读者自己想想吧。
@@ -1281,7 +1284,7 @@ public abstract class AbstractQueuedSynchronizer
 
                     /*我们发现一个问题，即使是中断唤醒了这个线程，也就只是设置了 interrupted = true 然后继续下一次循环。
                     而且，由于 Thread.interrupted() 会清除中断状态，第二次进 parkAndCheckInterrupt 的时候，返回会是 false。
-                    所以，我们要看到，在这个方法中，interrupted 只是用来记录是否发生了中断，然后用于方法返回值，其他没有做任
+                    所以，我们要看到，在这 个方法中，interrupted 只是用来记录是否发生了中断，然后用于方法返回值，其他没有做任
                     何相关事情。*/
 
                     //所以说，lock() 方法处理中断的方法就是，你中断归中断，我抢锁还是照样抢锁，几乎没关系，只是我抢到锁了以后，
@@ -1716,6 +1719,7 @@ public abstract class AbstractQueuedSynchronizer
      *
      *
      */
+
 
     // 我们看到，这个方法，如果tryAcquire(arg) 返回true, 也就结束了。
     // 否则，acquireQueued方法会将线程压到队列中
@@ -2167,8 +2171,9 @@ public abstract class AbstractQueuedSynchronizer
         Node t = tail; // Read fields in reverse initialization order
         Node h = head;
         Node s;
-        return h != t &&
-            ((s = h.next) == null || s.thread != Thread.currentThread());
+        //1.头和尾不相等说明肯定有队列
+        //2.头和尾相等，就要判断头的next是不是为null（为null就还没有排到队列），（不为null就说明有队列了）或者next节点是否持有锁（多线程的原因，如果next节点不持有锁，说明有队列，否则重新判断）
+        return h != t && ((s = h.next) == null || s.thread != Thread.currentThread());
     }
 
 
