@@ -113,6 +113,24 @@ import java.nio.channels.spi.SelectorProvider;
  * @since 1.4
  */
 
+//把它理解为 TCP 连接通道，简单理解就是 TCP 客户端
+
+//    1.SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress("https://www.javadoop.com", 80));
+//    或者
+//    // 打开一个通道
+//    2.SocketChannel socketChannel = SocketChannel.open();
+//    // 发起连接
+//    socketChannel.connect(new InetSocketAddress("https://www.javadoop.com", 80));
+
+
+//
+//    // 读取数据
+//    socketChannel.read(buffer);
+//
+//    // 写入数据到网络连接中
+//    while(buffer.hasRemaining()) {
+//      socketChannel.write(buffer);
+//    }
 public abstract class SocketChannel
     extends AbstractSelectableChannel
     implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, NetworkChannel

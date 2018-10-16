@@ -71,6 +71,21 @@ import java.nio.channels.spi.SelectorProvider;
  * @since 1.4
  */
 
+//TCP 对应的服务端，用于监听某个端口进来的请求
+
+//// 实例化
+//ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+//// 监听 8080 端口
+//serverSocketChannel.socket().bind(new InetSocketAddress(8080));
+//
+//      while (true) {
+//          // 一旦有一个 TCP 连接进来，就对应创建一个 SocketChannel 进行处理
+//          SocketChannel socketChannel = serverSocketChannel.accept();
+//      }
+
+//    ServerSocketChannel 不和 Buffer 打交道了，因为它并不实际处理数据，它一旦接收到请求后，
+//    实例化 SocketChannel，之后在这个连接通道上的数据传递它就不管了，因为它需要继续监听端口，
+//    等待下一个连接。
 public abstract class ServerSocketChannel
     extends AbstractSelectableChannel
     implements NetworkChannel

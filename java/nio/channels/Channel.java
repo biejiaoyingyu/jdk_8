@@ -52,7 +52,7 @@ import java.io.Closeable;
  * @author JSR-51 Expert Group
  * @since 1.4
  */
-
+//所有的 NIO 操作始于通道，通道是数据来源或数据写入的目的地
 public interface Channel extends Closeable {
 
     /**

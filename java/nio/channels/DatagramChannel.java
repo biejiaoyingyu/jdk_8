@@ -110,6 +110,23 @@ import java.nio.channels.spi.SelectorProvider;
  * @since 1.4
  */
 
+//用于 UDP 连接的接收和发送
+//UDP 是面向无连接的，不需要和对方握手，不需要通知对方，就可以直接将数据包投出去，至于能不能送达，它是不知道的
+
+     /* DatagramChannel channel = DatagramChannel.open();
+        channel.socket().bind(new InetSocketAddress(9090));
+
+        ByteBuffer buf = ByteBuffer.allocate(48);
+        channel.receive(buf);
+
+        String newData = "New String to write to file..."+ System.currentTimeMillis();
+
+        ByteBuffer buf = ByteBuffer.allocate(48);
+        buf.put(newData.getBytes());
+        buf.flip();
+
+        int bytesSent = channel.send(buf, new InetSocketAddress("jenkov.com", 80));*/
+
 public abstract class DatagramChannel
     extends AbstractSelectableChannel
     implements ByteChannel, ScatteringByteChannel, GatheringByteChannel, MulticastChannel

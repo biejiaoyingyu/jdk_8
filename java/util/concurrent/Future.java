@@ -151,7 +151,7 @@ public interface Future<V> {
      */
 
     /**
-     * 判断任务是否完成。
+     * 判断任务是否完成。正常完成、异常抛出、取消
      */
     boolean isDone();
 
