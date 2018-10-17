@@ -148,13 +148,14 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          */
 
         /**
-         * 方法用来支持非公平的tryLock
+         * 方法用来支持非公平的Lock
          */
         final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
             if (c == 0) {
                 //如果当前没有任何线程获取锁(锁可用)，尝试设置state。
+                //和非公平锁的第二个区别是这里如果没有人持有锁，会直接cas
                 if (compareAndSetState(0, acquires)) {
                     //如果设置成功，将当前线程信息设置到AQS中(所有权关联)。
                     setExclusiveOwnerThread(current);
@@ -262,7 +263,6 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         final void lock() {
             //这里首先尝试一个短代码路径，直接CAS设置state，尝试获取锁。
             //相当于一个插队的动作(可能出现AQS等待队列里有线程在等待，但当前线程竞争成功)。
-
             /**
              * 和公平锁相比，这里会直接先进行一次CAS，成功就返回了
              */

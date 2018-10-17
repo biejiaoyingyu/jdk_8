@@ -831,14 +831,13 @@ public abstract class AbstractQueuedSynchronizer
          */
 
         /**
-         *
          * 如果node的等待状态为负数(比如:可能需要一个信号)，尝试去清空
          * "等待唤醒"的状态(将状态置为0)，即使设置失败，或者该状态已经
          * 被正在等待的线程修改，也没有任何影响。
          */
 
         int ws = node.waitStatus;
-        if (ws < 0) //如果当前节点的状态小于0，尝试设置为0。
+        if (ws < 0) //如果当前节点的状态小于0，尝试设置为0。为什么要cas为0？？？
             compareAndSetWaitStatus(node, ws, 0);
 
         /*
@@ -858,6 +857,10 @@ public abstract class AbstractQueuedSynchronizer
         // 下面的代码就是唤醒后继节点，但是有可能后继节点取消了等待（waitStatus==1）
         // 从队尾往前找，找到waitStatus<=0的所有节点中排在最前面的
         Node s = node.next;
+        //后继节点为null并不一定是队列没有后继节点，可能正在入队（但是如果多个节点cas呢？难道cas的位置不是这个？
+        // cas设置尾节点，1.获取乐观锁，2.是先将当前节点设置为尾节点,3.尾节点的后继节点为当前节点）
+        // ===>这时候尾节点的前驱节点是头结点，但是还没有设置前驱节点的后置节点为尾节点
+        //如果waitStatus==1表明当前节点被取消，所以从后向前查找，找到最近的未被取消的节点，唤醒他。
         if (s == null || s.waitStatus > 0) {
             s = null;
             // 从后往前找，仔细看代码，不必担心中间有节点取消(waitStatus==1)的情况??不太明白
@@ -1070,7 +1073,7 @@ public abstract class AbstractQueuedSynchronizer
                  (ws <= 0 && compareAndSetWaitStatus(pred, ws, Node.SIGNAL))) &&
                 pred.thread != null) {
                 //如果当前节点的前驱节点不是头节点，那么需要给当前节点的后继节点一个"等待唤醒"的标记，
-                //即 将当前节点的前驱节点等待状态设置为SIGNAL，然后将其设置为当前节点的后继节点的前驱节点....(真绕!)
+                //即将当前节点的前驱节点等待状态设置为SIGNAL，然后将其设置为当前节点的后继节点的前驱节点....(真绕!)
                 Node next = node.next;
                 if (next != null && next.waitStatus <= 0)
                     compareAndSetNext(pred, predNext, next);
@@ -1179,11 +1182,11 @@ public abstract class AbstractQueuedSynchronizer
     //一旦对其进行中断，此线程会从 LockSupport.park(this) 中唤醒，然后 Thread.interrupted(); 返回 true。
     private final boolean parkAndCheckInterrupt() {
         /**
-         * 阻塞当前线程。
+         * 阻塞当前线程，等待获取锁
          */
         LockSupport.park(this);
         /**
-         * 线程被唤醒，方法返回当前线程的中断状态，并重置当前线程的中断状态（设置为false）
+         * 线程被唤醒，方法返回当前线程的中断状态，并重置当前线程的中断状态（设置为false）,如果第二次调用为肯定返回false
          */
         return Thread.interrupted();
     }
@@ -1278,7 +1281,10 @@ public abstract class AbstractQueuedSynchronizer
                 // 但是要看到，这个方法是套在循环里的，所以第二次进来的时候状态就是-1了。
 
                 // 解释下为什么shouldParkAfterFailedAcquire(p, node)返回false的时候不直接挂起线程：
-                // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。剩下的读者自己想想吧。
+                // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。???====>然后循环进入上面的代码更快获取锁
+
+                //如果parkAndCheckInterrupt()返回false，当前线程不会被阻塞，
+                //如果返回true，因为Thread.interrupted()会重置状态为fasle，所以需要记录中断状态
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     //如果有中断，设置中断状态。
 
@@ -1395,7 +1401,6 @@ public abstract class AbstractQueuedSynchronizer
                     int r = tryAcquireShared(arg);
                     if (r >= 0) {
                         //如果tryAcquireShared方法执行成功，执行setHeadAndPropagate（）
-
                         //唤醒线程的时候会进入这里-->t3 会进到 setHeadAndPropagate(node, r) 这个方法，先把 head 给占了，然后唤醒队列中其他的线程
                         setHeadAndPropagate(node, r);
                         //p节点被移除，置空next引用，帮助GC
@@ -1410,8 +1415,9 @@ public abstract class AbstractQueuedSynchronizer
                 }
                 //如果当前节点的前驱节点不是头节点，判断当前节点
                 //请求失败后是否要被阻塞，如果是，阻塞并保存当前线程中断状态。
-                if (shouldParkAfterFailedAcquire(p, node) &&
-                    parkAndCheckInterrupt())
+                //如果parkAndCheckInterrupt()返回false，当前线程不会被阻塞，
+                //如果返回true，因为Thread.interrupted()会重置状态为fasle，所以需要记录中断状态
+                if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     interrupted = true;
             }
         } finally {
@@ -1732,9 +1738,8 @@ public abstract class AbstractQueuedSynchronizer
         // tryAcquire(arg)没有成功，这个时候需要把当前线程挂起，放到阻塞队列中。
 
         // 假设tryAcquire(arg) 返回false，那么代码将执行：
-        //        acquireQueued(addWaiter(Node.EXCLUSIVE), arg)，
+        // acquireQueued(addWaiter(Node.EXCLUSIVE), arg)，=====>这行代码返回的是当前线程的中断状态，如果为真要记录这个状态
         // 这个方法，首先需要执行：addWaiter(Node.EXCLUSIVE)
-
         if (!tryAcquire(arg) && acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
             selfInterrupt();
     }
@@ -2297,12 +2302,13 @@ public abstract class AbstractQueuedSynchronizer
      */
 
     // 在节点入条件队列的时候，初始化时设置了 waitStatus = Node.CONDITION
-    // 前面我提到，signal 的时候需要将节点从条件队列移到阻塞队列，
+    // 前面提到，从出队到这里看有没有（多线程）signal 将节点从条件队列移到阻塞队列，
+    //
     // 这个方法就是判断 node 是否已经移动到阻塞队列了
     final boolean isOnSyncQueue(Node node) {
         // 移动过去的时候，node 的 waitStatus 会置为 0，这个之后在说 signal 方法的时候会说到
         // 如果 waitStatus 还是 Node.CONDITION，也就是 -2，那肯定就是还在条件队列中
-        // 如果 node 的前驱 prev 指向还是 null，说明肯定没有在 阻塞队列
+        // 如果 node 的前驱 prev 指向还是 null（先设置前置节点），说明肯定没有在阻塞队列
         if (node.waitStatus == Node.CONDITION || node.prev == null)
             return false;
         // 如果 node 已经有后继节点 next 的时候，那肯定是在阻塞队列了
@@ -2316,11 +2322,12 @@ public abstract class AbstractQueuedSynchronizer
          * unless the CAS failed (which is unlikely), it will be
          * there, so we hardly ever traverse much.
          */
-    /*
-     * 之前的代码中分析到过，node.prev不为空并不能说明节点在AQS的
-     * 同步等待队列里面，因为后续的CAS操作可能会失败，所以这里从尾节
-     * 开始反向遍历。
-     */
+
+        /*
+         * 之前的代码中分析到过，node.prev不为空（为空一定没在）并不能说明节点在AQS的
+         * 同步等待队列里面，因为后续的CAS操作可能会失败，所以这里从尾节开始反向遍历。
+         */
+
         // 这个方法从阻塞队列的队尾开始从后往前遍历找，如果找到相等的，说明在阻塞队列，否则就是不在阻塞队列
 
         // 可以通过判断 node.prev() != null 来推断出 node 在阻塞队列吗？答案是：不能。
@@ -2421,7 +2428,7 @@ public abstract class AbstractQueuedSynchronizer
     final boolean transferAfterCancelledWait(Node node) {
         // 用 CAS 将节点状态设置为 0
         // 如果这步 CAS 成功，说明是 signal 方法之前发生的中断，因为如果 signal 先发生的话，
-        // signal 中会将 waitStatus 设置为 0
+        // signal 会将 waitStatus 设置为 0
         if (compareAndSetWaitStatus(node, Node.CONDITION, 0)) {
             // 将节点放入阻塞队列
             // 这里我们看到，即使中断了，依然会转移到阻塞队列
@@ -2468,6 +2475,7 @@ public abstract class AbstractQueuedSynchronizer
         try {
             int savedState = getState();
             // 这里使用了当前的 state 作为 release 的参数，也就是完全释放掉锁，将 state 置为 0
+            // 会从阻塞队列出队，但是从await()到出队有一个过程，可能唤醒的时候还在柱塞队列中呢==>这点要异常重视
             if (release(savedState)) {
                 failed = false;
                 return savedState;
@@ -2849,6 +2857,8 @@ public abstract class AbstractQueuedSynchronizer
             // 3. 没有发生中断，返回 0
             // Thread.interrupted()：如果当前线程已经处于中断状态，那么该方法返回 true，同时将中断状态重置为 false，
             // 所以，才有后续的 重新中断（REINTERRUPT） 的使用。
+            //a.如果Thread.interrupted()返回false，即未被中断，整体返回0
+            //b.如果Thread.interrupted()返回true,会进入transferAfterCancelledWait(node) ? THROW_IE : REINTERRUPT
             return Thread.interrupted() ? (transferAfterCancelledWait(node) ? THROW_IE : REINTERRUPT) : 0;
         }
 
@@ -2899,7 +2909,6 @@ public abstract class AbstractQueuedSynchronizer
          *       ===================
          *          await就是把当前线程放到对应条件的等待队列里面，然后阻塞当前线程。
          *          signal就是把对应条件的等待队里的线程移动到对应AQS的同步等待队列里面，随后线程会被唤醒。
-
          *          注：await存在"伪唤醒"问题，所以被唤醒后应该再次检测等待条件：
          *          while(condition不满足) { conditionObject.await() }
          */
@@ -2908,13 +2917,15 @@ public abstract class AbstractQueuedSynchronizer
         // 这个方法会阻塞，直到调用 signal 方法（指 signal() 和 signalAll()，下同），或被中断
         public final void await() throws InterruptedException {
             //如果当前线程被中断，抛出InterruptedException异常。
+            //返回中断状态，然后重置为状态为fasle
             if (Thread.interrupted())
                 throw new InterruptedException();
-            //将当前线程添加到条件等待队列。
-            // 添加到 condition 的条件队列中
+            // 将当前线程添加到条件等待队列。
+            // 添加到 condition 的条件队列中,这时候还是拥有锁的也即对aqs是有控制权的
             Node node = addConditionWaiter();
             //释放当前线程对AQS的控制权，并返回当前AQS中的state值。
-            // 释放锁，返回值是释放锁之前的 state 值
+            //释放锁，返回值是释放锁之前的 state 值
+            //先进入条件队列---->然后才会从阻塞队列出队，但是从await()到出队有一个过程，可能唤醒的时候还在柱塞队列中呢==>这点要异常重视
             int savedState = fullyRelease(node);
 
             //释放掉锁以后，接下来是这段，这边会自旋，如果发现自己还没到阻塞队列，那么挂起，等待被转移到阻塞队列。
@@ -2925,8 +2936,11 @@ public abstract class AbstractQueuedSynchronizer
             while (!isOnSyncQueue(node)) {
                 //如果当前线程不在AQS的同步等待队列中，那么阻塞当前线程(等待被唤醒进入aqs队列/////)
                 LockSupport.park(this);
-                //其他线程调用相同条件上的signal/signalALl方法时，会将这个节点从条件队列转义到AQS的同步等待队列中。
-                //被唤醒后需要检查是否在等待过程中被中断。
+                //其他线程调用相同条件上的signal/signalALl方法时，会将这个节点从条件队列转义到AQS的同步等待队列中。-->然后退出循环
+
+                //=======================================================
+                //被唤醒后需要检查是否在等待过程中被中断。过程中可能会转移到阻塞队列？
+                //=======================================================
 
                 /*先解释下 interruptMode。interruptMode 可以取值为 REINTERRUPT（1），THROW_IE（-1），0
 
@@ -2942,14 +2956,17 @@ public abstract class AbstractQueuedSynchronizer
                 线程唤醒后第一步是调用 checkInterruptWhileWaiting(node) 这个方法，此方法用于判断是否在
                 线程挂起期间发生了中断，如果发生了中断，是 signal 调用之前中断的，还是 signal 之后发生的中断。*/
                 if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
-                    //如果发生了中断，退出循环。
+                    //如果发生了中断，退出循环，这里面会将节点转移到阻塞队列。
                     break;
             }
             //重新请求AQS的控制权。
-            // 被唤醒后，将进入阻塞队列，等待获取锁
+
+            //====================================================
+            //被唤醒后，将进入阻塞队列，等待获取锁
+            //====================================================
 
             /**
-             * 由于 while 出来后，我们确定节点已经进入了阻塞队列，准备获取锁。
+             * 由于 while 出来后，我们确定节点已经进入了阻塞队列（break出来的呢？-->这个过程会将节点转移到阻塞队列），准备获取锁。
 
              这里的 acquireQueued(node, savedState) 的第一个参数 node 之前已经经过
              enq(node) 进入了队列，参数 savedState 是之前释放锁前的 state，这个方法返
@@ -2959,16 +2976,18 @@ public abstract class AbstractQueuedSynchronizer
              的返回值就是代表线程是否被中断。如果返回 true，说明被中断了，而且 interruptMode != THROW_IE，说明在 signal
              之前就发生中断了，这里将 interruptMode 设置为 REINTERRUPT，用于待会重新中断。
              */
+
+            //acquireQueued会阻塞获取锁，
+            //interruptModel可能会有REINTERRUPT和THROW_IE两种情况
             if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
                 interruptMode = REINTERRUPT;
-           /* 本着一丝不苟的精神，这边说说 node.nextWaiter != null 怎么满足。
-           我前面也说了 signal 的时候会将节点转移到阻塞队列，有一步是
-           node.nextWaiter = null，将断开节点和条件队列的联系。
+           /*  node.nextWaiter != null 怎么满足呢？
+            我前面也说了 signal 的时候会将节点转移到阻塞队列，有一步是
+            node.nextWaiter = null，将断开节点和条件队列的联系。
 
             可是，在判断发生中断的情况下，是 signal 之前还是之后发生的？
-            这部分的时候，我也介绍了
-            ，如果 signal 之前就中断了，也需要将节点进行转移到阻塞队列，
-            这部分转移的时候，是没有设置 node.nextWaiter = null 的。
+            这部分的时候，我也介绍了，如果 signal 之前就中断了，也需要将
+            节点进行转移到阻塞队列，这部分转移的时候，是没有设置 node.nextWaiter = null 的。
             之前我们说过，如果有节点取消，也会调用 unlinkCancelledWaiters 这个方法，就是这里了*/
             if (node.nextWaiter != null) // clean up if cancelled
                 unlinkCancelledWaiters();
