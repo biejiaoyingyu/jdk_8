@@ -152,6 +152,22 @@ import java.util.Collections;
  * @since 1.4
  */
 
+//FileChannel文件通道，用于文件的读和写
+//    FileInputStream inputStream = new FileInputStream(new File("/data.txt"));
+//            FileChannel fileChannel = inputStream.getChannel();
+//
+//            ByteBuffer buffer = ByteBuffer.allocate(1024);
+//            int num = fileChannel.read(buffer);
+//
+//            ByteBuffer buffer = ByteBuffer.allocate(1024);
+//            buffer.put("随机写入一些内容到 Buffer 中".getBytes());
+//            // Buffer 切换为读模式
+//            buffer.flip();
+//            while(buffer.hasRemaining()) {
+//                // 将 Buffer 中的内容写入文件
+//                fileChannel.write(buffer);
+//            }
+
 public abstract class FileChannel
     extends AbstractInterruptibleChannel
     implements SeekableByteChannel, GatheringByteChannel, ScatteringByteChannel

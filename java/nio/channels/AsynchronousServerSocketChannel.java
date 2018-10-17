@@ -91,6 +91,18 @@ import java.io.IOException;
  * @since 1.7
  */
 
+/*AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open().bind(null);
+
+// accept 方法的第一个参数可以传递 attachment
+        listener.accept(attachment, new CompletionHandler<AsynchronousSocketChannel, Object>() {
+        public void completed(
+            AsynchronousSocketChannel client, Object attachment) {
+
+            }
+            public void failed(Throwable exc, Object attachment) {
+
+            }
+        });*/
 public abstract class AsynchronousServerSocketChannel
     implements AsynchronousChannel, NetworkChannel
 {

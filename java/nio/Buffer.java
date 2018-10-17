@@ -182,9 +182,19 @@ public abstract class Buffer {
         Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
 
     // Invariants: mark <= position <= limit <= capacity
+    //mark 用于临时保存 position 的值，每次调用 mark() 方法都会将 mark
+    // 设值为当前的 position，便于后续需要的时候使用。
     private int mark = -1;
+    //position的初始值是 0，每往 Buffer 中写入一个值，position 就自动加 1，代表下一次的写
+    //入位置。读操作的时候也是类似的，每读一个值，position 就自动加 1
+    //从写操作模式到读操作模式切换的时候（flip），position 都会归零，这样就可以从头开始读写了。???
     private int position = 0;
+    //写操作模式下，limit 代表的是最大能写入的数据，这个时候 limit 等于 capacity。写结束后，
+    //切换到读模式，此时的 limit 等于 Buffer 中实际的数据大小，因为 Buffer 不一定被写满了。
     private int limit;
+    //它代表这个缓冲区的容量，一旦设定就不可以更改。比如 capacity 为 1024 的 IntBuffer，
+    // 代表其一次可以存放 1024 个 int 类型的值。一旦 Buffer 的容量达到 capacity，需要清空
+    // Buffer，才能重新写入值。
     private int capacity;
 
     // Used only by direct buffers
@@ -284,6 +294,10 @@ public abstract class Buffer {
      *
      * @return  This buffer
      */
+
+    //mark 用于临时保存 position 的值，每次调用 mark() 方法都会将 mark 设值为当前的 position，便于后续需要的时候使用。
+    //那到底什么时候用呢？考虑以下场景，我们在 position 为 5 的时候，先 mark() 一下，然后继续往下读，读到第 10 的时候，
+    // 我想重新回到 position 为 5 的地方重新来一遍，那只要调一下 reset() 方法，position 就回到 5 了。
     public final Buffer mark() {
         mark = position;
         return this;
@@ -325,6 +339,11 @@ public abstract class Buffer {
      *
      * @return  This buffer
      */
+    //有点重置 Buffer 的意思，相当于重新实例化了一样。
+    //clear()：有点重置 Buffer 的意思，相当于重新实例化了一样。
+
+    //通常，我们会先填充 Buffer，然后从 Buffer 读取数据，之后我们再重新往里填充新的数据，我们一般在重新填充之前先调用 clear()。
+    //clear() 方法并不会将 Buffer 中的数据清空，只不过后续的写入会覆盖掉原来的数据，也就相当于清空了数据了。
     public final Buffer clear() {
         position = 0;
         limit = capacity;
@@ -353,10 +372,12 @@ public abstract class Buffer {
      *
      * @return  This buffer
      */
+
+    //可以从写入模式切换到读取模式。其实这个方法也就是设置了一下 position 和 limit 值罢了
     public final Buffer flip() {
-        limit = position;
-        position = 0;
-        mark = -1;
+        limit = position; // 将 limit 设置为实际写入的数据数量
+        position = 0;// 重置 position 为 0
+        mark = -1;//重新标志position值
         return this;
     }
 
@@ -375,6 +396,9 @@ public abstract class Buffer {
      *
      * @return  This buffer
      */
+
+    //会重置 position 为 0，通常用于重新从头读写 Buffer。
+    //rewind倒回
     public final Buffer rewind() {
         position = 0;
         mark = -1;

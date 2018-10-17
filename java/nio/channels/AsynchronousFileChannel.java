@@ -111,6 +111,30 @@ import java.util.Collections;
  * @since 1.7
  */
 
+/*
+AsynchronousFileChannel channel = AsynchronousFileChannel.open(Paths.get("/Users/hongjie/test.txt"));
+
+ByteBuffer buffer = ByteBuffer.allocate(1024);
+Future<Integer> result = channel.read(buffer, 0);
+        //异步文件通道的读操作和写操作都需要提供一个文件的开始位置，文件开始位置为 0
+        //除了使用返回 Future 实例的方式，也可以采用回调函数进行操作，接口如下：
+        public abstract <A> void read(ByteBuffer dst,
+                                        long position,
+                                        A attachment,
+                                        CompletionHandler<Integer,? super A> handler);
+
+        public abstract Future<Integer> write(ByteBuffer src, long position);
+
+        public abstract <A> void write(ByteBuffer src,
+                                        long position,
+                                        A attachment,
+                                        CompletionHandler<Integer,? super A> handler);
+
+        //另外，还提供了用于将内存中的数据刷入到磁盘的方法：
+        public abstract void force(boolean metaData) throws IOException;
+*/
+
+
 public abstract class AsynchronousFileChannel
     implements AsynchronousChannel
 {

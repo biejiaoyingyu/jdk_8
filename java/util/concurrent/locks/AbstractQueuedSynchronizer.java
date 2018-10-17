@@ -1178,7 +1178,7 @@ public abstract class AbstractQueuedSynchronizer
      * @return {@code true} if interrupted
      */
 
-    //如果我们要取消一个线程的排队，我们需要在另外一个线程中对其进行中断。比如某线程调用 lock() 老久不返回，我想中断它。
+
     //一旦对其进行中断，此线程会从 LockSupport.park(this) 中唤醒，然后 Thread.interrupted(); 返回 true。
     private final boolean parkAndCheckInterrupt() {
         /**
@@ -1281,10 +1281,16 @@ public abstract class AbstractQueuedSynchronizer
                 // 但是要看到，这个方法是套在循环里的，所以第二次进来的时候状态就是-1了。
 
                 // 解释下为什么shouldParkAfterFailedAcquire(p, node)返回false的时候不直接挂起线程：
+<<<<<<< HEAD
                 // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。???====>然后循环进入上面的代码更快获取锁
 
                 //如果parkAndCheckInterrupt()返回false，当前线程不会被阻塞，
                 //如果返回true，因为Thread.interrupted()会重置状态为fasle，所以需要记录中断状态
+=======
+                // ==> 是为了应对在经过这个方法后，node已经是head的直接后继节点了。==>因为前驱节点的状态大于0,
+                //  所以有这种情况(从后面循环向前面找可能会找到头结点)
+                // ==>如果前驱节点是头节点，就不用去 阻塞，直接进入下一次循环获取锁可能效率更高
+>>>>>>> fe3052912d4d85d5678d7df0a01c4b2012ca32a2
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     //如果有中断，设置中断状态。
 

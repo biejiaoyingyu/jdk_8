@@ -259,6 +259,16 @@ package java.nio;
  * @since 1.4
  */
 
+
+//各个 Buffer 类都提供了一些 put 方法用于将数据填充到 Buffer
+//不能超过 capacity，超过会抛 java.nio.BufferOverflowException 异常
+
+//对于 Buffer 来说，另一个常见的操作中就是，我们要将来自 Channel 的数据填充到 Buffer 中，
+// 在系统层面上，这个操作我们称为读操作，因为数据是从外部（文件或网络等）读到内存中
+//int num = channel.read(buf);
+    //写到管道中
+//int num = channel.write(buf);
+//new String(buffer.array()).trim();
 public abstract class ByteBuffer
     extends Buffer
     implements Comparable<ByteBuffer>
@@ -329,6 +339,9 @@ public abstract class ByteBuffer
      * @throws  IllegalArgumentException
      *          If the <tt>capacity</tt> is a negative integer
      */
+
+    //每个 Buffer 实现类都提供了一个静态方法 allocate(int capacity) 帮助我们快速实例化一个 Buffer
+    //allocate分配
     public static ByteBuffer allocate(int capacity) {
         if (capacity < 0)
             throw new IllegalArgumentException();
@@ -392,6 +405,7 @@ public abstract class ByteBuffer
      *
      * @return  The new byte buffer
      */
+    //我们经常使用 wrap 方法来初始化一个 Buffer。
     public static ByteBuffer wrap(byte[] array) {
         return wrap(array, 0, array.length);
     }
@@ -557,6 +571,8 @@ public abstract class ByteBuffer
      * @throws  BufferUnderflowException
      *          If the buffer's current position is not smaller than its limit
      */
+
+    // 根据 position 来获取数据
     public abstract byte get();
 
     /**
@@ -576,6 +592,7 @@ public abstract class ByteBuffer
      * @throws  ReadOnlyBufferException
      *          If this buffer is read-only
      */
+    // 填充一个 byte 值
     public abstract ByteBuffer put(byte b);
 
     /**
@@ -591,6 +608,8 @@ public abstract class ByteBuffer
      *          If <tt>index</tt> is negative
      *          or not smaller than the buffer's limit
      */
+
+    // 获取指定位置的数据
     public abstract byte get(int index);
 
 
@@ -627,6 +646,7 @@ public abstract class ByteBuffer
      * @throws  ReadOnlyBufferException
      *          If this buffer is read-only
      */
+    // 在指定位置填充一个 int 值
     public abstract ByteBuffer put(int index, byte b);
 
 
@@ -711,6 +731,7 @@ public abstract class ByteBuffer
      *          If there are fewer than <tt>length</tt> bytes
      *          remaining in this buffer
      */
+    // 将 Buffer 中的数据写入到数组中
     public ByteBuffer get(byte[] dst) {
         return get(dst, 0, dst.length);
     }
@@ -855,10 +876,10 @@ public abstract class ByteBuffer
      * @throws  ReadOnlyBufferException
      *          If this buffer is read-only
      */
+    // 将一个数组中的值填充进去
     public final ByteBuffer put(byte[] src) {
         return put(src, 0, src.length);
     }
-
 
 
 
@@ -989,6 +1010,8 @@ public abstract class ByteBuffer
      * @throws  UnsupportedOperationException
      *          If this buffer is not backed by an accessible array
      */
+
+    //new String(buffer.array()).trim();
     public final byte[] array() {
         if (hb == null)
             throw new UnsupportedOperationException();
@@ -1065,6 +1088,12 @@ public abstract class ByteBuffer
      * @throws  ReadOnlyBufferException
      *          If this buffer is read-only
      */
+
+    //compact()：和 clear() 一样的是，它们都是在准备往 Buffer 填充新的数据之前调用
+    //compact() 方法有点不一样，调用这个方法以后，会先处理还没有读取的数据，也就是
+    // position 到 limit 之间的数据（还没有读过的数据），先将这些数据移到左边，然后
+    // 在这个基础上再开始写入。很明显，此时 limit 还是等于 capacity，position 指向原来数据的右边。
+    //compact压紧
     public abstract ByteBuffer compact();
 
     /**

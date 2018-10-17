@@ -203,6 +203,66 @@ import java.util.Set;
  * @see SelectionKey
  */
 
+
+//Selector 建立在非阻塞的基础之上，大家经常听到的 多路复用
+// 在 Java 世界中指的就是它，用于实现一个线程管理多个 Channel
+
+   /* 1.首先，我们开启一个 Selector。
+    Selector selector = Selector.open();
+    2.将 Channel 注册到 Selector 上。前面我们说了，Selector 建立在非阻塞模式之上，
+        所以注册到 Selector 的 Channel 必须要支持非阻塞模式，FileChannel 不支持非
+        阻塞，我们这里讨论最常见的 SocketChannel 和 ServerSocketChannel。
+        // 将通道设置为非阻塞模式，因为默认都是阻塞模式的
+        channel.configureBlocking(false);
+        // 注册
+        SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+        //register 方法的第二个 int 型参数（使用二进制的标记位）用于表明需要监听哪些感兴趣的事件，共以下四种事件
+        A.SelectionKey.OP_READ-->对应 00000001，通道中有数据可以进行读取
+        B.SelectionKey.OP_WRITE-->对应 00000100，可以往通道中写入数据
+        C.SelectionKey.OP_CONNECT-->对应 00001000，成功建立 TCP 连接
+        D.SelectionKey.OP_ACCEPT-->对应 00010000，接受 TCP 连接
+
+
+        我们可以同时监听一个 Channel 中的发生的多个事件，比如我们要监听 ACCEPT 和 READ 事件，
+        那么指定参数为二进制的 00010001 即十进制数值 17 即可。
+        注册方法返回值是 SelectionKey 实例，它包含了 Channel 和 Selector 信息，也包括了一个叫做
+        Interest Set 的信息，即我们设置的我们感兴趣的正在监听的事件集合。
+    3.调用 select() 方法获取通道信息。用于判断是否有我们感兴趣的事件已经发生了。
+
+        Selector selector = Selector.open();
+
+        channel.configureBlocking(false);
+
+        SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+
+        while(true) {
+        // 判断是否有事件准备好
+        int readyChannels = selector.select();
+        if(readyChannels == 0) continue;
+
+        // 遍历
+        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+        Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+        while(keyIterator.hasNext()) {
+        SelectionKey key = keyIterator.next();
+
+        if(key.isAcceptable()) {
+        // a connection was accepted by a ServerSocketChannel.
+
+        } else if (key.isConnectable()) {
+        // a connection was established with a remote server.
+
+        } else if (key.isReadable()) {
+        // a channel is ready for reading
+
+        } else if (key.isWritable()) {
+        // a channel is ready for writing
+        }
+
+        keyIterator.remove();
+        }
+        }*/
+
 public abstract class Selector implements Closeable {
 
     /**
@@ -294,6 +354,8 @@ public abstract class Selector implements Closeable {
      * @throws  ClosedSelectorException
      *          If this selector is closed
      */
+
+    //功能和 select 一样，区别在于如果没有准备好的通道，那么此方法会立即返回 0。
     public abstract int selectNow() throws IOException;
 
     /**
@@ -326,6 +388,7 @@ public abstract class Selector implements Closeable {
      * @throws  IllegalArgumentException
      *          If the value of the timeout argument is negative
      */
+    //看了前面两个，这个应该很好理解了，如果没有通道准备好，此方法会等待一会
     public abstract int select(long timeout)
         throws IOException;
 
@@ -347,6 +410,9 @@ public abstract class Selector implements Closeable {
      * @throws  ClosedSelectorException
      *          If this selector is closed
      */
+
+//    调用此方法，会将上次 select 之后的准备好的 channel 对应的 SelectionKey 复制到
+//    selected set 中。如果没有任何通道准备好，这个方法会阻塞，直到至少有一个通道准备好。
     public abstract int select() throws IOException;
 
     /**
@@ -368,6 +434,9 @@ public abstract class Selector implements Closeable {
      *
      * @return  This selector
      */
+    //这个方法是用来唤醒等待在 select() 和 select(timeout) 上的线程的。如果 wakeup() 先被调用，
+    // 此时没有线程在 select 上阻塞，那么之后的一个 select() 或 select(timeout) 会立即返回，而
+    // 不会阻塞，当然，它只会作用一次。
     public abstract Selector wakeup();
 
     /**
