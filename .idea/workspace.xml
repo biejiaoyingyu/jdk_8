@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f0dd2800-4ac5-453c-bdbc-e9e375b2c0c5" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java" afterPath="$PROJECT_DIR$/java/util/concurrent/locks/ReentrantLock.java" />
-    </list>
+    <list default="true" id="f0dd2800-4ac5-453c-bdbc-e9e375b2c0c5" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -168,8 +164,8 @@
       <file leaf-file-name="AbstractQueuedSynchronizer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="2993" column="35" lean-forward="true" selection-start-line="2993" selection-start-column="35" selection-end-line="2993" selection-end-column="35" />
+            <state relative-caret-position="459">
+              <caret line="2991" column="65" lean-forward="true" selection-start-line="2991" selection-start-column="65" selection-end-line="2991" selection-end-column="65" />
               <folding>
                 <element signature="e#43666#43667#0" expanded="true" />
                 <element signature="e#43716#43717#0" expanded="true" />
@@ -938,12 +934,12 @@
       <workItem from="1539659193946" duration="11564000" />
       <workItem from="1539675041589" duration="173000" />
       <workItem from="1539679374651" duration="1802000" />
-      <workItem from="1539737855867" duration="18343000" />
+      <workItem from="1539737855867" duration="18457000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="130908000" />
+    <option name="totallyTimeSpent" value="131022000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
@@ -1498,8 +1494,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/java/util/concurrent/locks/AbstractQueuedSynchronizer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="2993" column="35" lean-forward="true" selection-start-line="2993" selection-start-column="35" selection-end-line="2993" selection-end-column="35" />
+        <state relative-caret-position="459">
+          <caret line="2991" column="65" lean-forward="true" selection-start-line="2991" selection-start-column="65" selection-end-line="2991" selection-end-column="65" />
           <folding>
             <element signature="e#43666#43667#0" expanded="true" />
             <element signature="e#43716#43717#0" expanded="true" />
