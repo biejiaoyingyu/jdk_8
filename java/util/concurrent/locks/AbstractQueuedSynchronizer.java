@@ -1281,16 +1281,16 @@ public abstract class AbstractQueuedSynchronizer
                 // 但是要看到，这个方法是套在循环里的，所以第二次进来的时候状态就是-1了。
 
                 // 解释下为什么shouldParkAfterFailedAcquire(p, node)返回false的时候不直接挂起线程：
-<<<<<<< HEAD
+
                 // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。???====>然后循环进入上面的代码更快获取锁
 
                 //如果parkAndCheckInterrupt()返回false，当前线程不会被阻塞，
                 //如果返回true，因为Thread.interrupted()会重置状态为fasle，所以需要记录中断状态
-=======
+
                 // ==> 是为了应对在经过这个方法后，node已经是head的直接后继节点了。==>因为前驱节点的状态大于0,
                 //  所以有这种情况(从后面循环向前面找可能会找到头结点)
                 // ==>如果前驱节点是头节点，就不用去 阻塞，直接进入下一次循环获取锁可能效率更高
->>>>>>> fe3052912d4d85d5678d7df0a01c4b2012ca32a2
+
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     //如果有中断，设置中断状态。
 
@@ -2384,7 +2384,7 @@ public abstract class AbstractQueuedSynchronizer
          */
         // CAS 如果失败，说明此 node 的 waitStatus 已不是 Node.CONDITION，说明节点已经取消，
         // 既然已经取消，也就不需要转移了，方法返回，转移后面一个节点
-        // 否则，将 waitStatus 置为 0
+        // 否则，将 waitStatus 置为 0(singal的时候会将状态置为0)
         if (!compareAndSetWaitStatus(node, Node.CONDITION, 0))
             return false;
 
@@ -2409,7 +2409,7 @@ public abstract class AbstractQueuedSynchronizer
        /* 正常情况下，ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL) 这句中，ws <= 0，而且
         compareAndSetWaitStatus(p, ws, Node.SIGNAL) 会返回 true，所以一般也不会进去 if 语句块中唤醒
         node 对应的线程。然后这个方法返回 true，也就意味着 signal 方法结束了，节点进入了阻塞队列。
-
+        //===========================================================>
         假设发生了阻塞队列中的前驱节点取消等待，或者 CAS 失败，只要唤醒线程，让其进到下一步即可。*/
         if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
             // 如果前驱节点取消或者 CAS 失败，会进到这里唤醒线程，之后的操作看下一节
@@ -2450,6 +2450,7 @@ public abstract class AbstractQueuedSynchronizer
         // 到这里是因为 CAS 失败，肯定是因为 signal 方法已经将 waitStatus 设置为了 0
         // signal 方法会将节点转移到阻塞队列，但是可能还没完成，这边自旋等待其完成
         // 当然，这种事情还是比较少的吧：signal 调用之后，没完成转移之前，发生了中断
+        // 没有在同步队列中和下面的那个奇怪的问题有点相呼应，
         while (!isOnSyncQueue(node))
             Thread.yield();
         return false;
@@ -2678,6 +2679,8 @@ public abstract class AbstractQueuedSynchronizer
                 // 因为 first 马上要被移到阻塞队列了，和条件队列的链接关系在这里断掉
                 first.nextWaiter = null;
                 //然后调用transferForSignal，如果调用失败且条件等待队列不为空，继续上面过程，否则方法结束
+                //为什么会调用失败呢？进去看---->如果这个节点被取消了就会这样
+                //如果返回true，有可能前驱节点被取消了或者当前节点cas入队失败，当前线程被唤醒（一般不会进入这个分支，但是如果进入了代表什么？）
             } while (!transferForSignal(first) &&
                     // 这里 while 循环，如果 first 转移不成功，那么选择 first 后面的第一个节点进行转移，依此类推
                      (first = firstWaiter) != null);
@@ -3110,7 +3113,7 @@ public abstract class AbstractQueuedSynchronizer
                 throw new InterruptedException();
             Node node = addConditionWaiter();
             int savedState = fullyRelease(node);
-            //  // 当前时间 + 等待时长 = 过期时间
+            // 当前时间 + 等待时长 = 过期时间
             final long deadline = System.nanoTime() + nanosTimeout;
             // 用于返回 await 是否超时
             boolean timedout = false;
@@ -3128,6 +3131,7 @@ public abstract class AbstractQueuedSynchronizer
                 // 也就是说，如果不到 1 毫秒了，那就不要选择 parkNanos 了，自旋的性能反而更好
                 if (nanosTimeout >= spinForTimeoutThreshold)
                     LockSupport.parkNanos(this, nanosTimeout);
+                //这里面有cas的步骤
                 if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
                     break;
                 // 得到剩余时间
