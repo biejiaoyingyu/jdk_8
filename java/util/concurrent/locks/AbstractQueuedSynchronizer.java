@@ -1281,16 +1281,16 @@ public abstract class AbstractQueuedSynchronizer
                 // 但是要看到，这个方法是套在循环里的，所以第二次进来的时候状态就是-1了。
 
                 // 解释下为什么shouldParkAfterFailedAcquire(p, node)返回false的时候不直接挂起线程：
-<<<<<<< HEAD
+
                 // => 是为了应对在经过这个方法后，node已经是head的直接后继节点了。???====>然后循环进入上面的代码更快获取锁
 
                 //如果parkAndCheckInterrupt()返回false，当前线程不会被阻塞，
                 //如果返回true，因为Thread.interrupted()会重置状态为fasle，所以需要记录中断状态
-=======
+
                 // ==> 是为了应对在经过这个方法后，node已经是head的直接后继节点了。==>因为前驱节点的状态大于0,
                 //  所以有这种情况(从后面循环向前面找可能会找到头结点)
                 // ==>如果前驱节点是头节点，就不用去 阻塞，直接进入下一次循环获取锁可能效率更高
->>>>>>> fe3052912d4d85d5678d7df0a01c4b2012ca32a2
+
                 if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     //如果有中断，设置中断状态。
 
@@ -2670,7 +2670,7 @@ public abstract class AbstractQueuedSynchronizer
         // 因为前面我们说过，有些线程会取消排队，但是还在队列中
         private void doSignal(Node first) {
             do {
-                //移除first
+                // 移除first
                 // 将 firstWaiter 指向 first 节点后面的第一个
                 // 如果将队头移除后，后面没有节点在等待了，那么需要将 lastWaiter 置为 null
                 if ( (firstWaiter = first.nextWaiter) == null)
@@ -2771,7 +2771,6 @@ public abstract class AbstractQueuedSynchronizer
          *
          * 将条件等待队列里面等待时间最长(链表最前面)的线程(如果存在的话)
          * 移动到AQS同步等待队列里面。
-         *
          */
         // 唤醒等待了最久的线程
         // 其实就是，将这个线程对应的 node 从条件队列转移到阻塞队列
@@ -2782,7 +2781,7 @@ public abstract class AbstractQueuedSynchronizer
                 throw new IllegalMonitorStateException();
             Node first = firstWaiter;
             if (first != null)
-                //如果有线程在条件队列里面等待，那么执行doSignal()方法
+                //如果有线程在条件队列里面等待，那么执行doSignal()方法，waite的时候会先将节点放到条件队列，然后才能出队释放锁，那么这个节点可能在阻塞队列中么？
                 doSignal(first);
         }
 
@@ -2987,7 +2986,7 @@ public abstract class AbstractQueuedSynchronizer
             //interruptModel可能会有REINTERRUPT和THROW_IE两种情况
             if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
                 interruptMode = REINTERRUPT;
-           /*  node.nextWaiter != null 怎么满足呢？
+           /*node.nextWaiter != null 怎么满足呢？
             我前面也说了 signal 的时候会将节点转移到阻塞队列，有一步是
             node.nextWaiter = null，将断开节点和条件队列的联系。
 
