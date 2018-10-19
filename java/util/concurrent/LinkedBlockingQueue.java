@@ -84,11 +84,19 @@ import java.util.function.Consumer;
  * (在并发程序中，基于链表实现的队列和基于数组实现的队列相比，往往具有更高的吞吐量，但性能稍差一些)
  *
  * 首先可见，内部为单向链表；其次，内部为两把锁：存锁和取锁，并分别关联一个条件(是一种双锁队列)。
- * 为什么会有两把锁？而不下昂ArrayBlockingQueue的一把锁？
+ * 为什么会有两把锁？而不下是ArrayBlockingQueue的一把锁？
+ *  这个主要是循环队列的原因，主要是数组和链表不同，链表队列的添加和头部的删除，都是只和一个节点相关，添加只往后加就可以，
+ *  删除只从头部去掉就好。为了防止head和tail相互影响出现问题，这里就需要原子性的计数器，头部要移除，首先得看计数器是否大
+ *  于0，每个添加操作，都是先加入队列，然后计数器加1，这样保证了，队列在移除的时候，长度是大于等于计数器的，通过原子性的计
+ *  数器，双锁才能互不干扰。数组的一个问题就是位置的选择没有办法原子化（？？？？），因为位置会循环，走到最后一个位置后就返
+ *  回到第一个位置，这样的操作无法原子化，所以只能是加锁来解决。
+ *
+ *  LinkedBlockingQueue的优点是锁分离，那就很适合生产和消费频率差不多的场景，这样生产和消费互不干涉的执行，能达到不错的效率，
+ *  尽量不使用remove操作，获取两把锁的效率更低，可以使用size方法（就是计数器直接返回），这个还是比较重要的，有些集合不适合使用
+ *  size，例如ConcurrentLinkedQueue，正确应该使用isEmpty()。
  *
  */
-public class LinkedBlockingQueue<E> extends AbstractQueue<E>
-        implements BlockingQueue<E>, java.io.Serializable {
+public class LinkedBlockingQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable {
     private static final long serialVersionUID = -6903933977591709194L;
 
     /*

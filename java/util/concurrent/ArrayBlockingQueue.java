@@ -123,7 +123,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
      * Concurrency control uses the classic two-condition algorithm
      * found in any textbook.
      */
-
     /** Main lock guarding all access */
     /** 保护存取的锁 */
     final ReentrantLock lock;
@@ -374,6 +373,7 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         try {
             //队列满时，在notFull条件上等待。
             while (count == items.length)
+                //从阻塞队列转到条件队列
                 notFull.await();
             /**
              * 在内部数组的putIndex位置插入元素，调整putIndex和count，然后唤醒notEmpty条件上等待的线程。
@@ -428,9 +428,10 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         lock.lockInterruptibly();
         try {
             while (count == 0)//队列空时，在notEmpty条件上等待。
+                //从阻塞队列转到条件队列
                 notEmpty.await();
             /**
-             * 从takeInde的位置取出元素，增加takeIndex，减少count，唤醒在notFull上等待的线程。
+             * 从takeIndex的位置取出元素，增加takeIndex，减少count，唤醒在notFull上等待的线程。
              * 本方法只有在持有锁的情况下才会被调用。
              */
             return dequeue();

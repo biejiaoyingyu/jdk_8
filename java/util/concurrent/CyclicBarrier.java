@@ -251,7 +251,6 @@ public class CyclicBarrier {
      * 打破一个栅栏
      *
      * 什么时候栅栏会被打破，总结如下：
-
      * 1.中断，我们说了，如果某个等待的线程发生了中断，那么会打破栅栏，同时抛出 InterruptedException 异常；
      * 2.超时，打破栅栏，同时抛出 TimeoutException 异常；
      * 3.指定执行的操作抛出了异常，这个我们前面也说过。

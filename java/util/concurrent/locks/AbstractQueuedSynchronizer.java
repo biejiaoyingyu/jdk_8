@@ -835,7 +835,6 @@ public abstract class AbstractQueuedSynchronizer
          * "等待唤醒"的状态(将状态置为0)，即使设置失败，或者该状态已经
          * 被正在等待的线程修改，也没有任何影响。
          */
-
         int ws = node.waitStatus;
         if (ws < 0) //如果当前节点的状态小于0，尝试设置为0。为什么要cas为0？？？
             compareAndSetWaitStatus(node, ws, 0);
@@ -857,8 +856,8 @@ public abstract class AbstractQueuedSynchronizer
         // 下面的代码就是唤醒后继节点，但是有可能后继节点取消了等待（waitStatus==1）
         // 从队尾往前找，找到waitStatus<=0的所有节点中排在最前面的
         Node s = node.next;
-        //后继节点为null并不一定是队列没有后继节点，可能正在入队（但是如果多个节点cas呢？难道cas的位置不是这个？
-        // cas设置尾节点，1.获取乐观锁，2.是先将当前节点设置为尾节点,3.尾节点的后继节点为当前节点）
+        //后继节点为null并不一定是队列没有后继节点，可能正在入队
+        // （cas设置尾节点，1.获取乐观锁，2.是先将当前节点设置为尾节点,3.尾节点的后继节点为当前节点）
         // ===>这时候尾节点的前驱节点是头结点，但是还没有设置前驱节点的后置节点为尾节点
         //如果waitStatus==1表明当前节点被取消，所以从后向前查找，找到最近的未被取消的节点，唤醒他。
         if (s == null || s.waitStatus > 0) {
@@ -898,21 +897,21 @@ public abstract class AbstractQueuedSynchronizer
          * unparkSuccessor, we need to know if CAS to reset status
          * fails, if so rechecking.
          */
-    /*
-     * 保证释放动作(向同步等待队列尾部)传递，即使没有其他正在进行的
-     * 请求或释放动作。如果头节点的后继节点需要唤醒，那么执行唤
-     * 动作；如果不需要，将头结点的等待状态设置为PROPAGATE保证
-     * 唤醒传递。另外，为了防止过程中有新节点进入(队列)，这里必
-     * 需做循环，所以，和其他unparkSuccessor方法使用方式不一样
-     * 的是，如果(头结点)等待状态设置失败，重新检测。
-     */
+        /*
+         * 保证释放动作(向同步等待队列尾部)传递，即使没有其他正在进行的
+         * 请求或释放动作。如果头节点的后继节点需要唤醒，那么执行唤
+         * 动作；如果不需要，将头结点的等待状态设置为PROPAGATE保证
+         * 唤醒传递。另外，为了防止过程中有新节点进入(队列)，这里必
+         * 需做循环，所以，和其他unparkSuccessor方法使用方式不一样
+         * 的是，如果(头结点)等待状态设置失败，重新检测。
+         */
         for (;;) {
             Node h = head;
             //判断同步等待队列是否为空
 
             // 1. h == null: 说明阻塞队列为空
-            // 2. h == tail: 说明头结点可能是刚刚初始化的头节点，
-            //   或者是普通线程节点，但是此节点既然是头节点了，那么代表已经被唤醒了，阻塞队列没有其他节点了
+            // 2. h == tail: 说明头结点可能是刚刚初始化的头节点，(因为初始的头结点不是柱塞节点)
+            // 或者是普通线程节点，但是此节点既然是头节点了，那么代表已经被唤醒了，阻塞队列没有其他节点了
             // 所以这两种情况不需要进行唤醒后继节点
             if (h != null && h != tail) {
                 //如果不为空，获取头节点的等待状态。
@@ -925,8 +924,6 @@ public abstract class AbstractQueuedSynchronizer
                 if (ws == Node.SIGNAL) {
                     //如果修改失败，重新循环检测
                     // 这里 CAS 失败的场景请看下面的解读？？？详情见最后的注解
-
-
                     if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
                         continue;
                     // loop to recheck cases
@@ -944,16 +941,18 @@ public abstract class AbstractQueuedSynchronizer
             }
             // 如果到这里的时候，前面唤醒的线程已经占领了 head，那么再循环
             // 否则，就是 head 没变，那么退出循环，
-            // 退出循环是不是意味着阻塞队列中的其他节点就不唤醒了？当然不是，唤醒的线程之后还是会调用这个方法的
+            // 退出循环是不是意味着阻塞队列中的其他节点就不唤醒了？当然不是，唤醒的线程之后还是会调用这个方法的（调用这个方法的方法有无限循环）
 
-            /*h == head：说明头节点还没有被刚刚用 unparkSuccessor 唤醒的线程（这里可以理解为 t4）占有，此时 break 退出循环。
-            h != head：头节点被刚刚唤醒的线程（这里可以理解为 t4）占有，那么这里重新进入下一轮循环，唤醒下一个节点（这里是 t4 ）。
-            我们知道，等到 t4 被唤醒后，其实是会主动唤醒 t5、t6、t7...，那为什么这里要进行下一个循环来唤醒 t5 呢？我觉得是出于吞吐量的考虑。
-            满足上面的 2 的场景，那么我们就能知道为什么上面的 CAS 操作 compareAndSetWaitStatus(h, Node.SIGNAL, 0) 会失败了？
-            因为当前进行 for 循环的线程到这里的时候，可能刚刚唤醒的线程 t4 也刚刚好到这里了，那么就有可能 CAS 失败了。
-            for 循环第一轮的时候会唤醒 t4，t4 醒后会将自己设置为头节点，如果在 t4 设置头节点后，for 循环才跑到 if (h == head)，
-            那么此时会返回 false，for 循环会进入下一轮。t4 唤醒后也会进入到这个方法里面，那么 for 循环第二轮和 t4 就有可能在这个
-             CAS 相遇，那么就只会有一个成功了。*/
+            /*
+                h == head：说明头节点还没有被刚刚用 unparkSuccessor 唤醒的线程（这里可以理解为 t4）占有，此时 break 退出循环。
+                h != head：头节点被刚刚唤醒的线程（这里可以理解为 t4）占有，那么这里重新进入下一轮循环，唤醒下一个节点（这里是 t4 ）。
+                我们知道，等到 t4 被唤醒后，其实是会主动唤醒 t5、t6、t7...，那为什么这里要进行下一个循环来唤醒 t5 呢？我觉得是出于吞吐量的考虑。
+                满足上面的 2 的场景，那么我们就能知道为什么上面的 CAS 操作 compareAndSetWaitStatus(h, Node.SIGNAL, 0) 会失败了？
+                因为当前进行 for 循环的线程到这里的时候，可能刚刚唤醒的线程 t4 也刚刚好到这里了，那么就有可能 CAS 失败了。
+                for 循环第一轮的时候会唤醒 t4，t4 醒后会将自己设置为头节点，如果在 t4 设置头节点后，for 循环才跑到 if (h == head)，
+                那么此时会返回 false，for 循环会进入下一轮。t4 唤醒后也会进入到这个方法里面，那么 for 循环第二轮和 t4 就有可能在这个
+                CAS 相遇，那么就只会有一个成功了。
+             */
             if (h == head)                   // loop if head changed
                 break;
             // 如果过程中头节点没有发生变化，循环退出；否则需要继续检测。
@@ -1447,6 +1446,7 @@ public abstract class AbstractQueuedSynchronizer
         final Node node = addWaiter(Node.SHARED);
         boolean failed = true;
         try {
+            //自旋
             for (;;) {
                 final Node p = node.predecessor();
                 if (p == head) {
@@ -1461,8 +1461,7 @@ public abstract class AbstractQueuedSynchronizer
                 }
                 //进入parkAndCheckInterrupt 的时候，t3 挂起。
                 //我们再分析 t4 入队，t4 会将前驱节点 t3 所在节点的 waitStatus 设置为 -1，t4 入队后，应该是这样的
-                if (shouldParkAfterFailedAcquire(p, node) &&
-                    parkAndCheckInterrupt())
+                if (shouldParkAfterFailedAcquire(p, node) && parkAndCheckInterrupt())
                     throw new InterruptedException();
             }
         } finally {
@@ -1902,13 +1901,15 @@ public abstract class AbstractQueuedSynchronizer
         //首先调用tryAcquireShared请求方法，请求失败的话，继续调用doAcquireSharedInterruptibly方法。
 
 
-        //线程调用 await 的时候，state 都大于 0。
+        // 线程调用 await 的时候，state 都大于 0。
         // 也就是说，这个 if 返回 true，然后往里看
 
         // 只有当 state == 0 的时候，这个方法才会返回 1，否者返回-1
         //        protected int tryAcquireShared(int acquires) {
         //            return (getState() == 0) ? 1 : -1;
         //        }
+
+        // 如果state==0的话，await方法就结束了，栅栏被打破，所以当前线程可以继续进行下面的流程
         if (tryAcquireShared(arg) < 0)
             doAcquireSharedInterruptibly(arg);
     }

@@ -105,8 +105,7 @@ import java.util.Spliterators;
  * 当然，这个类也是不允许传递 null 值的（并发包中的容器类好像都不支持插入 null 值，因为 null
  * 值往往用作其他用途，比如用于方法的返回值代表操作失败）。
  */
-public class SynchronousQueue<E> extends AbstractQueue<E>
-    implements BlockingQueue<E>, java.io.Serializable {
+public class SynchronousQueue<E> extends AbstractQueue<E> implements BlockingQueue<E>, java.io.Serializable {
     private static final long serialVersionUID = -3223113410248163686L;
 
     /*
@@ -269,10 +268,10 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
         /* Modes for SNodes, ORed together in node fields */
         /** Node represents an unfulfilled consumer */
         /** 表示一个没有得到数据的消费者 */
-        static final int REQUEST    = 0;
+        static final int REQUEST = 0;
         /** Node represents an unfulfilled producer */
         /** 表示一个没有交出数据的生产者 */
-        static final int DATA       = 1;
+        static final int DATA = 1;
         /** Node is fulfilling another unfulfilled DATA or REQUEST */
         /**
          * 表示正在匹配另一个生产者或者消费者。
